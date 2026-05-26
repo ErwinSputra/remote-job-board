@@ -1,0 +1,120 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"    // Memakai port 5432 (Khusus db push)
+}
+
+// --- ENUMS (Tipe Data Konstan) ---
+
+enum Role {
+  CANDIDATE // Pencari kerja
+  EMPLOYER  // Pemasang lowongan
+  ADMIN     // Administrator platform
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  FREELANCE
+  INTERNSHIP
+}
+
+enum SubscriptionPlan {
+  FREE
+  PREMIUM_POSTER
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+}
+
+// --- MODELS ---
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(CANDIDATE)
+  
+  // Relasi
+  companies     Company[] // 1 Employer bisa punya banyak Company profile
+  subscription  Subscription?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  logoUrl     String?
+  website     String?
+  description String?  @db.Text
+  
+  // Relasi ke User (Employer yang membuat)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Relasi ke lowongan
+  jobs        Job[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Job {
+  id            String   @id @default(cuid())
+  title         String
+  slug          String   @unique
+  description   String   @db.Text
+  type          JobType
+  category      String   // Misal: "Software Engineering", "Marketing"
+  region        String?  // Untuk remote: "Worldwide", "US Only", "Asia"
+  
+  // Logika Filter Gaji (Penting untuk Fitur Pencarian)
+  salaryMin     Int?
+  salaryMax     Int?
+  currency      String   @default("USD")
+  
+  // Logika SaaS (Premium)
+  isFeatured    Boolean  @default(false)
+  featuredUntil DateTime?
+  
+  // Relasi ke Company
+  companyId     String
+  company       Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([category, type]) // Optimasi index untuk kecepatan filter pencarian
+}
+
+model Subscription {
+  id                     String             @id @default(cuid())
+  userId                 String             @unique
+  user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  plan                   SubscriptionPlan   @default(FREE)
+  status                 SubscriptionStatus @default(ACTIVE)
+  
+  // Integrasi Payment Gateway (misal: Stripe / Midtrans)
+  stripeCustomerId       String?            @unique
+  stripeSubscriptionId   String?            @unique
+  
+  currentPeriodStart     DateTime?
+  currentPeriodEnd       DateTime?
+
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+}
