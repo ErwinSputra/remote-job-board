@@ -9,7 +9,7 @@ export default async function Navbar() {
     <nav className="bg-[#1A1A2E] border-b border-white/10">
       <div className="flex items-center justify-between max-w-6xl mx-auto px-6 py-4">
         <Link href="/" className="flex items-center gap-2">
-          <span className="bg-[#E8FF59] text-[#1A1A2E] text-xs font-black px-2 py-0.5 rounded">
+          <span className="bg-[#FFE97D] text-[#1A1A2E] text-xs font-black px-2 py-0.5 rounded">
             RJB
           </span>
           <span className="text-white font-bold text-lg tracking-tight">

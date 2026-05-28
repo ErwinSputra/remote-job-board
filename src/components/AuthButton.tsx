@@ -39,7 +39,7 @@ export function AuthButton({ user }: Props) {
   return (
     <button
       onClick={() => signIn("google")}
-      className="cursor-pointer bg-[#E8FF59] text-[#1A1A2E] text-sm font-bold px-4 py-1.5 rounded-lg hover:bg-yellow-300 transition-colors"
+      className="cursor-pointer bg-[#FFE97D] text-[#1A1A2E] text-sm font-bold px-4 py-1.5 rounded-lg hover:bg-[#FDD835] transition-colors"
     >
       Sign In
     </button>

@@ -30,8 +30,7 @@ export default async function Home({
   return (
     <main className="min-h-screen bg-[#F7F6F3]">
       {/* ── Hero ── */}
-      <section className="bg-[#1A1A2E] text-white px-6 py-20 text-center relative overflow-hidden">
-        {/* subtle grid overlay */}
+      <section className="bg-[#1A1A2E] text-white px-6 py-10 relative overflow-hidden">
         <div
           className="absolute inset-0 opacity-[0.04]"
           style={{
@@ -40,43 +39,14 @@ export default async function Home({
             backgroundSize: "40px 40px",
           }}
         />
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <span className="inline-block bg-[#E8FF59] text-[#1A1A2E] text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-6">
-            🌍 Remote-first
-          </span>
-          <h1 className="text-4xl md:text-6xl font-black leading-tight mb-5 tracking-tight">
-            Temukan Pekerjaan
-            <br />
-            <span className="text-[#E8FF59]">Remote Terbaik</span> Untukmu
+        <div className="relative z-10 max-w-3xl mx-auto text-center">
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight mb-2">
+            Temukan Pekerjaan{" "}
+            <span className="text-[#FFE97D]">Remote Terbaik</span> Untukmu
           </h1>
-          <p className="text-white/60 text-lg mb-10 max-w-xl mx-auto">
-            Ribuan lowongan remote dari perusahaan terkemuka di seluruh dunia,
-            dikurasi setiap hari.
+          <p className="text-white/50 text-sm mb-6">
+            {jobs.length} lowongan aktif · {featuredCount} featured
           </p>
-
-          {/* Stats row */}
-          <div className="flex justify-center gap-8 text-sm">
-            <div className="flex items-center gap-2 text-white/50">
-              <Briefcase size={15} />
-              <span>
-                <strong className="text-white">{jobs.length}</strong> lowongan
-                aktif
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-white/50">
-              <TrendingUp size={15} />
-              <span>
-                <strong className="text-white">{featuredCount}</strong> featured
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-white/50">
-              <MapPin size={15} />
-              <span>
-                <strong className="text-white">{categories.length}</strong>{" "}
-                kategori
-              </span>
-            </div>
-          </div>
           <SearchBar />
         </div>
       </section>

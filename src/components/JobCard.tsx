@@ -61,7 +61,7 @@ export function JobCard({
       ${isFeatured ? "border-amber-300 shadow-amber-100 shadow-md" : "border-gray-200 hover:border-gray-300"}`}
     >
       {isFeatured && (
-        <div className="absolute top-0 right-0 bg-amber-400 text-amber-900 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-bl-xl">
+        <div className="absolute top-0 right-0 bg-amber-400 text-[#1A1A2E] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-bl-xl">
           ⭐ Featured
         </div>
       )}

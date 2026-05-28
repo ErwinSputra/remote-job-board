@@ -43,7 +43,7 @@ export function SearchBar() {
       </select>
       <button
         onClick={handleSearch}
-        className="bg-[#E8FF59] text-[#1A1A2E] font-bold px-6 py-2.5 rounded-xl hover:bg-yellow-300 transition-colors flex items-center gap-2 cursor-pointer"
+        className="bg-[#FFE97D] text-[#1A1A2E] font-bold px-6 py-2.5 rounded-xl hover:bg-[#FDD835] transition-colors flex items-center gap-2 cursor-pointer"
       >
         <Search size={16} />
         Search
