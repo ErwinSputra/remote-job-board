@@ -5,15 +5,15 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"    // Memakai port 5432 (Khusus db push)
+  provider = "postgresql"
 }
 
-// --- ENUMS (Tipe Data Konstan) ---
+// --- ENUMS ---
 
 enum Role {
-  CANDIDATE // Pencari kerja
-  EMPLOYER  // Pemasang lowongan
-  ADMIN     // Administrator platform
+  CANDIDATE
+  EMPLOYER
+  ADMIN
 }
 
 enum JobType {
@@ -22,6 +22,14 @@ enum JobType {
   CONTRACT
   FREELANCE
   INTERNSHIP
+}
+
+enum ExperienceLevel {
+  ENTRY
+  MID
+  SENIOR
+  LEAD
+  EXECUTIVE
 }
 
 enum SubscriptionPlan {
@@ -35,6 +43,13 @@ enum SubscriptionStatus {
   PAST_DUE
 }
 
+enum JobStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  CLOSED
+}
+
 // --- MODELS ---
 
 model User {
@@ -44,11 +59,11 @@ model User {
   emailVerified DateTime?
   image         String?
   role          Role      @default(CANDIDATE)
-  
-  // Relasi
-  companies     Company[] // 1 Employer bisa punya banyak Company profile
+
+  companies     Company[]
   subscription  Subscription?
-  
+  savedJobs     SavedJob[]      // 👈 Candidates can bookmark jobs
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -58,14 +73,18 @@ model Company {
   name        String
   slug        String   @unique
   logoUrl     String?
+  coverUrl    String?  // 👈 Banner/cover image for company profile page
   website     String?
   description String?  @db.Text
-  
-  // Relasi ke User (Employer yang membuat)
+  size        String?  // 👈 e.g. "1-10", "11-50", "51-200", "200+"
+  industry    String?  // 👈 e.g. "Technology", "Finance"
+  location    String?  // 👈 HQ location e.g. "Jakarta, Indonesia"
+  twitter     String?  // 👈 Social links
+  linkedin    String?
+
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  // Relasi ke lowongan
+
   jobs        Job[]
 
   createdAt   DateTime @default(now())
@@ -73,48 +92,67 @@ model Company {
 }
 
 model Job {
-  id            String   @id @default(cuid())
-  title         String
-  slug          String   @unique
-  description   String   @db.Text
-  type          JobType
-  category      String   // Misal: "Software Engineering", "Marketing"
-  region        String?  // Untuk remote: "Worldwide", "US Only", "Asia"
-  
-  // Logika Filter Gaji (Penting untuk Fitur Pencarian)
-  salaryMin     Int?
-  salaryMax     Int?
-  currency      String   @default("USD")
-  
-  // Logika SaaS (Premium)
-  isFeatured    Boolean  @default(false)
-  featuredUntil DateTime?
-  
-  // Relasi ke Company
-  companyId     String
-  company       Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  id              String          @id @default(cuid())
+  title           String
+  slug            String          @unique
+  description     String          @db.Text
+  requirements    String?         @db.Text  // 👈 Separate requirements section
+  benefits        String?         @db.Text  // 👈 Perks & benefits
+  type            JobType
+  status          JobStatus       @default(ACTIVE)  // 👈 Draft/Active/Expired/Closed
+  category        String
+  tags            String[]        // 👈 e.g. ["React", "TypeScript", "Node.js"]
+  experienceLevel ExperienceLevel @default(MID)  // 👈 Seniority filter
+  region          String?
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  @@index([category, type]) // Optimasi index untuk kecepatan filter pencarian
+  salaryMin       Int?
+  salaryMax       Int?
+  currency        String          @default("USD")
+  salaryPublic    Boolean         @default(true)  // 👈 Option to hide salary
+
+  isFeatured      Boolean         @default(false)
+  featuredUntil   DateTime?
+  expiresAt       DateTime?       // 👈 Auto-expire job listings
+
+  companyId       String
+  company         Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  savedBy         SavedJob[]      // 👈 Reverse relation for bookmarks
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([category, type])
+  @@index([status, isFeatured])   // 👈 For homepage featured query
+  @@index([expiresAt])            // 👈 For cleanup/expiry jobs
+}
+
+// 👈 Bookmark/saved jobs feature for candidates
+model SavedJob {
+  id        String   @id @default(cuid())
+  userId    String
+  jobId     String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, jobId])  // Prevent duplicate saves
 }
 
 model Subscription {
-  id                     String             @id @default(cuid())
-  userId                 String             @unique
-  user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  plan                   SubscriptionPlan   @default(FREE)
-  status                 SubscriptionStatus @default(ACTIVE)
-  
-  // Integrasi Payment Gateway (misal: Stripe / Midtrans)
-  stripeCustomerId       String?            @unique
-  stripeSubscriptionId   String?            @unique
-  
-  currentPeriodStart     DateTime?
-  currentPeriodEnd       DateTime?
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt              DateTime           @default(now())
-  updatedAt              DateTime           @updatedAt
+  plan                 SubscriptionPlan   @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
+
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
 }
