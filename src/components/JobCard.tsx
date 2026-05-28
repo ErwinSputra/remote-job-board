@@ -1,4 +1,5 @@
 import { Job, Company } from "@prisma/client";
+import Image from "next/image";
 
 type JobWithCompany = Job & {
   company: Company;
@@ -70,9 +71,11 @@ export function JobCard({
         <div className="flex items-center gap-3 mb-4">
           <div className="w-11 h-11 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0">
             {company.logoUrl ? ( // ✅ fixed: was company.logo
-              <img
+              <Image
                 src={company.logoUrl}
                 alt={company.name}
+                width={44}
+                height={44}
                 className="w-full h-full object-cover"
               />
             ) : (
