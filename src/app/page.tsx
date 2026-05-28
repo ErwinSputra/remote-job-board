@@ -1,9 +1,25 @@
 import { JobCard } from "@/components/JobCard";
 import { prisma } from "@/lib/prisma";
 import { Briefcase, MapPin, TrendingUp } from "lucide-react";
+import { JobType } from "@prisma/client";
+import { SearchBar } from "@/components/SearchBar";
+import { CategoryPills } from "@/components/CategoryPills";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: { q?: string; type?: string; category?: string };
+}) {
+  const { q, type, category } = await searchParams;
+
   const jobs = await prisma.job.findMany({
+    where: {
+      title: q ? { contains: q, mode: "insensitive" } : undefined,
+      type: type ? (type as JobType) : undefined,
+      category: category
+        ? { contains: category, mode: "insensitive" }
+        : undefined,
+    },
     include: { company: true },
     orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
   });
@@ -61,24 +77,13 @@ export default async function Home() {
               </span>
             </div>
           </div>
+          <SearchBar />
         </div>
       </section>
 
       {/* ── Category pills ── */}
       <section className="bg-white border-b border-gray-200 px-6 py-4 overflow-x-auto">
-        <div className="flex gap-2 max-w-6xl mx-auto w-max md:w-auto">
-          <button className="shrink-0 px-4 py-1.5 rounded-full bg-[#1A1A2E] text-white text-sm font-medium">
-            Semua
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              className="shrink-0 px-4 py-1.5 rounded-full border border-gray-200 text-sm text-gray-600 hover:border-gray-400 hover:text-gray-900 transition-colors bg-white"
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+        <CategoryPills categories={categories} />
       </section>
 
       {/* ── Job listings ── */}
