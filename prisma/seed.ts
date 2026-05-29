@@ -96,6 +96,10 @@ async function main() {
         slug: "senior-full-stack-engineer-technusa",
         description:
           "Membangun produk SaaS skala besar dengan Next.js dan Node.js.",
+        requirements:
+          "Minimal 5 tahun pengalaman dengan Next.js dan Node.js.\nPengalaman dengan PostgreSQL dan Prisma.\nFamiliar dengan sistem cloud seperti AWS atau GCP.",
+        benefits:
+          "Remote penuh.\nGaji kompetitif.\nTunjangan peralatan kerja.\nFleksibel jam kerja.",
         type: JobType.FULL_TIME,
         category: "Software Engineering",
         region: "Asia",

@@ -1,5 +1,6 @@
 import { Job, Company } from "@prisma/client";
 import Image from "next/image";
+import { formatSalary } from "@/lib/utils";
 
 type JobWithCompany = Job & {
   company: Company;
@@ -17,19 +18,6 @@ export function JobCard({
   createdAt,
   company,
 }: JobWithCompany) {
-  const formatSalary = (
-    min?: number | null,
-    max?: number | null,
-    curr?: string,
-  ) => {
-    if (!min && !max) return null;
-    const fmt = (n: number) =>
-      n >= 1000 ? `${(n / 1000).toFixed(0)}k` : `${n}`;
-    if (min && max) return `${curr} ${fmt(min)} – ${fmt(max)}`;
-    if (min) return `${curr} ${fmt(min)}+`;
-    return `${curr} up to ${fmt(max!)}`;
-  };
-
   const salary = formatSalary(salaryMin, salaryMax, currency);
 
   const daysAgo = Math.floor(

@@ -4,6 +4,7 @@ import { Briefcase, MapPin, TrendingUp } from "lucide-react";
 import { JobType } from "@prisma/client";
 import { SearchBar } from "@/components/SearchBar";
 import { CategoryPills } from "@/components/CategoryPills";
+import { Suspense } from "react";
 
 export default async function Home({
   searchParams,
@@ -47,13 +48,17 @@ export default async function Home({
           <p className="text-white/50 text-sm mb-6">
             {jobs.length} lowongan aktif · {featuredCount} featured
           </p>
-          <SearchBar />
+          <Suspense fallback={null}>
+            <SearchBar />
+          </Suspense>
         </div>
       </section>
 
       {/* ── Category pills ── */}
       <section className="bg-white border-b border-gray-200 px-6 py-4 overflow-x-auto">
-        <CategoryPills categories={categories} />
+        <Suspense fallback={null}>
+          <CategoryPills categories={categories} />
+        </Suspense>
       </section>
 
       {/* ── Job listings ── */}
