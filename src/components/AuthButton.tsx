@@ -2,6 +2,7 @@
 
 import { signIn, signOut } from "next-auth/react";
 import Image from "next/image";
+import Link from "next/link";
 
 type Props = {
   user?: {
@@ -23,6 +24,12 @@ export function AuthButton({ user }: Props) {
             className="rounded-full"
           />
         )}
+        <Link
+          href="/upgrade"
+          className="text-white/60 hover:text-white text-sm px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors"
+        >
+          Upgrade
+        </Link>
         <span className="text-white/70 text-sm hidden md:block">
           {user.name}
         </span>
