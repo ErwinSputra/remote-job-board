@@ -62,7 +62,7 @@ model User {
 
   companies     Company[]
   subscription  Subscription?
-  savedJobs     SavedJob[]      // 👈 Candidates can bookmark jobs
+  savedJobs     SavedJob[]    
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -73,13 +73,13 @@ model Company {
   name        String
   slug        String   @unique
   logoUrl     String?
-  coverUrl    String?  // 👈 Banner/cover image for company profile page
+  coverUrl    String?  // Banner/cover image for company profile page
   website     String?
   description String?  @db.Text
-  size        String?  // 👈 e.g. "1-10", "11-50", "51-200", "200+"
-  industry    String?  // 👈 e.g. "Technology", "Finance"
-  location    String?  // 👈 HQ location e.g. "Jakarta, Indonesia"
-  twitter     String?  // 👈 Social links
+  size        String?  // e.g. "1-10", "11-50", "51-200", "200+"
+  industry    String?  // e.g. "Technology", "Finance"
+  location    String?  // HQ location e.g. "Jakarta, Indonesia"
+  twitter     String?  // Social links
   linkedin    String?
 
   userId      String
@@ -96,38 +96,38 @@ model Job {
   title           String
   slug            String          @unique
   description     String          @db.Text
-  requirements    String?         @db.Text  // 👈 Separate requirements section
-  benefits        String?         @db.Text  // 👈 Perks & benefits
+  requirements    String?         @db.Text  // Separate requirements section
+  benefits        String?         @db.Text  // Perks & benefits
   type            JobType
-  status          JobStatus       @default(ACTIVE)  // 👈 Draft/Active/Expired/Closed
+  status          JobStatus       @default(ACTIVE)  // Draft/Active/Expired/Closed
   category        String
-  tags            String[]        // 👈 e.g. ["React", "TypeScript", "Node.js"]
-  experienceLevel ExperienceLevel @default(MID)  // 👈 Seniority filter
+  tags            String[]        // e.g. ["React", "TypeScript", "Node.js"]
+  experienceLevel ExperienceLevel @default(MID)  // Seniority filter
   region          String?
 
   salaryMin       Int?
   salaryMax       Int?
   currency        String          @default("USD")
-  salaryPublic    Boolean         @default(true)  // 👈 Option to hide salary
+  salaryPublic    Boolean         @default(true)  // Option to hide salary
 
   isFeatured      Boolean         @default(false)
   featuredUntil   DateTime?
-  expiresAt       DateTime?       // 👈 Auto-expire job listings
+  expiresAt       DateTime?       // Auto-expire job listings
 
   companyId       String
   company         Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  savedBy         SavedJob[]      // 👈 Reverse relation for bookmarks
+  savedBy         SavedJob[]      // Reverse relation for bookmarks
 
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
   @@index([category, type])
-  @@index([status, isFeatured])   // 👈 For homepage featured query
-  @@index([expiresAt])            // 👈 For cleanup/expiry jobs
+  @@index([status, isFeatured])   // For homepage featured query
+  @@index([expiresAt])            // For cleanup/expiry jobs
 }
 
-// 👈 Bookmark/saved jobs feature for candidates
+// Bookmark/saved jobs feature for candidates
 model SavedJob {
   id        String   @id @default(cuid())
   userId    String

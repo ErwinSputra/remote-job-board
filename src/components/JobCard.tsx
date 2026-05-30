@@ -1,6 +1,7 @@
 import { Job, Company } from "@prisma/client";
 import Image from "next/image";
 import { formatSalary } from "@/lib/utils";
+import Link from "next/link";
 
 type JobWithCompany = Job & {
   company: Company;
@@ -8,6 +9,7 @@ type JobWithCompany = Job & {
 
 export function JobCard({
   title,
+  slug,
   type,
   category,
   region,
@@ -44,80 +46,82 @@ export function JobCard({
   };
 
   return (
-    <div
-      className={`relative group bg-white rounded-2xl border transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 overflow-hidden
+    <Link href={`/jobs/${slug}`} className="block">
+      <div
+        className={`relative group bg-white rounded-2xl border transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 overflow-hidden
       ${isFeatured ? "border-amber-300 shadow-amber-100 shadow-md" : "border-gray-200 hover:border-gray-300"}`}
-    >
-      {isFeatured && (
-        <div className="absolute top-0 right-0 bg-amber-400 text-[#1A1A2E] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-bl-xl">
-          ⭐ Featured
-        </div>
-      )}
-
-      <div className="p-5">
-        {/* Company row */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-11 h-11 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0">
-            {company.logoUrl ? ( // ✅ fixed: was company.logo
-              <Image
-                src={company.logoUrl}
-                alt={company.name}
-                width={44}
-                height={44}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="text-lg font-bold text-gray-400">
-                {company.name[0]}
-              </span>
-            )}
+      >
+        {isFeatured && (
+          <div className="absolute top-0 right-0 bg-amber-400 text-[#1A1A2E] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-bl-xl">
+            ⭐ Featured
           </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-800 truncate">
-              {company.name}
-            </p>
-            {company.website && (
-              <p className="text-xs text-gray-400 truncate">
-                {company.website.replace(/^https?:\/\//, "")}
+        )}
+
+        <div className="p-5">
+          {/* Company row */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-11 h-11 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0">
+              {company.logoUrl ? ( // ✅ fixed: was company.logo
+                <Image
+                  src={company.logoUrl}
+                  alt={company.name}
+                  width={44}
+                  height={44}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-lg font-bold text-gray-400">
+                  {company.name[0]}
+                </span>
+              )}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-gray-800 truncate">
+                {company.name}
               </p>
-            )}
+              {company.website && (
+                <p className="text-xs text-gray-400 truncate">
+                  {company.website.replace(/^https?:\/\//, "")}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Job title */}
-        <h3 className="text-base font-bold text-gray-900 leading-snug mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
-          {title}
-        </h3>
+          {/* Job title */}
+          <h3 className="text-base font-bold text-gray-900 leading-snug mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+            {title}
+          </h3>
 
-        {/* Tags row */}
-        <div className="flex flex-wrap gap-1.5 mb-4">
-          <span
-            className={`text-xs font-medium px-2.5 py-0.5 rounded-full border ${typeColors[type] ?? "bg-gray-50 text-gray-600 border-gray-200"}`}
-          >
-            {typeLabel[type] ?? type}
-          </span>
-          <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border bg-gray-50 text-gray-600 border-gray-200">
-            {category}
-          </span>
-          {region && (
-            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border bg-sky-50 text-sky-700 border-sky-200">
-              🌍 {region}
+          {/* Tags row */}
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            <span
+              className={`text-xs font-medium px-2.5 py-0.5 rounded-full border ${typeColors[type] ?? "bg-gray-50 text-gray-600 border-gray-200"}`}
+            >
+              {typeLabel[type] ?? type}
             </span>
-          )}
-        </div>
-
-        {/* Footer row */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <span className="text-sm font-semibold text-gray-700">
-            {salary ?? (
-              <span className="text-gray-400 font-normal text-xs">
-                Salary not listed
+            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border bg-gray-50 text-gray-600 border-gray-200">
+              {category}
+            </span>
+            {region && (
+              <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border bg-sky-50 text-sky-700 border-sky-200">
+                🌍 {region}
               </span>
             )}
-          </span>
-          <span className="text-xs text-gray-400">{postedLabel}</span>
+          </div>
+
+          {/* Footer row */}
+          <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+            <span className="text-sm font-semibold text-gray-700">
+              {salary ?? (
+                <span className="text-gray-400 font-normal text-xs">
+                  Salary not listed
+                </span>
+              )}
+            </span>
+            <span className="text-xs text-gray-400">{postedLabel}</span>
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
