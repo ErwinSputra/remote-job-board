@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Search } from "lucide-react";
-import { JobType } from "@prisma/client";
+import { ExperienceLevel, JobType } from "@prisma/client";
 
 export function SearchBar() {
   const router = useRouter();
@@ -11,11 +11,15 @@ export function SearchBar() {
 
   const [q, setQ] = useState(searchParams.get("q") ?? "");
   const [type, setType] = useState(searchParams.get("type") ?? "");
+  const [experienceLevel, setExperienceLevel] = useState(
+    searchParams.get("experienceLevel") ?? "",
+  );
 
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (q) params.set("q", q);
     if (type) params.set("type", type);
+    if (experienceLevel) params.set("experienceLevel", experienceLevel);
     router.replace(`/?${params.toString()}`, { scroll: false });
   };
 
@@ -41,6 +45,20 @@ export function SearchBar() {
           </option>
         ))}
       </select>
+
+      <select
+        value={experienceLevel}
+        onChange={(e) => setExperienceLevel(e.target.value)}
+        className="px-4 py-2.5 rounded-xl text-[#1A1A2E] text-sm outline-none bg-white"
+      >
+        <option value="">All Experience Levels</option>
+        {Object.values(ExperienceLevel).map((level) => (
+          <option key={level} value={level}>
+            {level.replace("_", " ")}
+          </option>
+        ))}
+      </select>
+
       <button
         onClick={handleSearch}
         className="bg-[#FFE97D] text-[#1A1A2E] font-bold px-6 py-2.5 rounded-xl hover:bg-[#FDD835] transition-colors flex items-center gap-2 cursor-pointer"

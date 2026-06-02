@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { JobType, ExperienceLevel } from "@prisma/client";
+import { toast } from "sonner";
 
 type Props = {
   companyId: string;
@@ -63,7 +64,7 @@ export function PostJobForm({ companyId }: Props) {
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error ?? "Something went wrong");
+        toast.error(data.error ?? "Something went wrong");
         return;
       }
 

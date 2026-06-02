@@ -1,7 +1,8 @@
 import { JobCard } from "@/components/JobCard";
 import { prisma } from "@/lib/prisma";
-import { Briefcase, MapPin, TrendingUp } from "lucide-react";
+import { Briefcase } from "lucide-react";
 import { JobType } from "@prisma/client";
+import { ExperienceLevel } from "@prisma/client";
 import { SearchBar } from "@/components/SearchBar";
 import { CategoryPills } from "@/components/CategoryPills";
 import { Suspense } from "react";
@@ -9,14 +10,20 @@ import { Suspense } from "react";
 export default async function Home({
   searchParams,
 }: {
-  searchParams: { q?: string; type?: string; category?: string };
+  searchParams: {
+    q?: string;
+    type?: string;
+    category?: string;
+    experience?: string;
+  };
 }) {
-  const { q, type, category } = await searchParams;
+  const { q, type, category, experience } = await searchParams;
 
   const jobs = await prisma.job.findMany({
     where: {
       title: q ? { contains: q, mode: "insensitive" } : undefined,
       type: type ? (type as JobType) : undefined,
+      experience: experience ? (experience as ExperienceLevel) : undefined,
       category: category
         ? { contains: category, mode: "insensitive" }
         : undefined,
