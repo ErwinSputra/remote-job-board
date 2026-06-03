@@ -4,7 +4,9 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { formatSalary } from "@/lib/utils";
-import { Bookmark, Building2, Globe, MapPin, Users } from "lucide-react";
+import { Building2, Globe, MapPin, Users } from "lucide-react";
+import { BookmarkButton } from "@/components/BookmarkButton";
+import { auth } from "@/auth";
 
 type Props = {
   params: { slug: string };
@@ -56,6 +58,19 @@ export default async function JobPage({ params }: Props) {
     LEAD: "Lead",
     EXECUTIVE: "Executive",
   };
+
+  const session = await auth();
+
+  const isBookmarked = await prisma.savedJob.findUnique({
+    where: {
+      userId_jobId: {
+        userId: session?.user.id || "",
+        jobId: job.id,
+      },
+    },
+  });
+
+  const isBookmarkedFlag = !!isBookmarked;
 
   return (
     <main className="bg-[#F7F6F3] min-h-screen">
@@ -124,10 +139,7 @@ export default async function JobPage({ params }: Props) {
               <button className="bg-[#FFE97D] hover:bg-[#FDD835] transition-colors text-[#1A1A2E] font-bold px-6 py-2.5 rounded-full text-sm cursor-pointer">
                 Lamar Sekarang
               </button>
-              <button className="flex items-center gap-2 text-sm text-gray-500 border border-gray-200 px-4 py-2.5 rounded-full hover:border-gray-400 transition-colors cursor-pointer">
-                <Bookmark size={14} />
-                Simpan
-              </button>
+              <BookmarkButton jobId={job.id} isBookmarked={isBookmarkedFlag} />
             </div>
           </section>
 
