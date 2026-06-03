@@ -14,16 +14,18 @@ export default async function Home({
     q?: string;
     type?: string;
     category?: string;
-    experience?: string;
+    experienceLevel?: string;
   };
 }) {
-  const { q, type, category, experience } = await searchParams;
+  const { q, type, category, experienceLevel } = await searchParams;
 
   const jobs = await prisma.job.findMany({
     where: {
       title: q ? { contains: q, mode: "insensitive" } : undefined,
       type: type ? (type as JobType) : undefined,
-      experience: experience ? (experience as ExperienceLevel) : undefined,
+      experienceLevel: experienceLevel
+        ? (experienceLevel as ExperienceLevel)
+        : undefined,
       category: category
         ? { contains: category, mode: "insensitive" }
         : undefined,

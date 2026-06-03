@@ -18,6 +18,7 @@ export function JobCard({
   currency,
   isFeatured,
   createdAt,
+  experienceLevel,
   company,
 }: JobWithCompany) {
   const salary = formatSalary(salaryMin, salaryMax, currency);
@@ -43,6 +44,14 @@ export function JobCard({
     CONTRACT: "Contract",
     FREELANCE: "Freelance",
     INTERNSHIP: "Internship",
+  };
+
+  const experienceLevelLabel: Record<string, string> = {
+    ENTRY: "Entry Level",
+    MID: "Mid Level",
+    SENIOR: "Senior Level",
+    LEAD: "Lead",
+    EXECUTIVE: "Executive",
   };
 
   return (
@@ -107,6 +116,9 @@ export function JobCard({
                 🌍 {region}
               </span>
             )}
+            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border bg-gray-50 text-gray-600 border-gray-200">
+              {experienceLevelLabel[experienceLevel] ?? experienceLevel}
+            </span>
           </div>
 
           {/* Footer row */}

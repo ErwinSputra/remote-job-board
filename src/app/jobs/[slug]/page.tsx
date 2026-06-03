@@ -49,6 +49,14 @@ export default async function JobPage({ params }: Props) {
     INTERNSHIP: "Internship",
   };
 
+  const experienceLevelLabel: Record<string, string> = {
+    ENTRY: "Entry Level",
+    MID: "Mid Level",
+    SENIOR: "Senior Level",
+    LEAD: "Lead",
+    EXECUTIVE: "Executive",
+  };
+
   return (
     <main className="bg-[#F7F6F3] min-h-screen">
       <div className="max-w-6xl mx-auto px-6 py-10 flex gap-8 items-start">
@@ -92,6 +100,10 @@ export default async function JobPage({ params }: Props) {
                   </span>
                   <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border border-gray-200 text-gray-600">
                     {job.category}
+                  </span>
+                  <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border border-gray-200 text-gray-600">
+                    {experienceLevelLabel[job.experienceLevel] ??
+                      job.experienceLevel}
                   </span>
                   {job.region && (
                     <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border border-gray-200 text-gray-600">
@@ -179,24 +191,34 @@ export default async function JobPage({ params }: Props) {
               Tentang Perusahaan
             </h2>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0">
-                {job.company.logoUrl ? (
-                  <Image
-                    src={job.company.logoUrl}
-                    alt={job.company.name}
-                    width={48}
-                    height={48}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-lg font-bold text-gray-400">
-                    {job.company.name[0]}
-                  </span>
-                )}
-              </div>
-              <div>
+              <Link
+                href={`/companies/${job.company.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <div className="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0">
+                  {job.company.logoUrl ? (
+                    <Image
+                      src={job.company.logoUrl}
+                      alt={job.company.name}
+                      width={48}
+                      height={48}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-lg font-bold text-gray-400">
+                      {job.company.name[0]}
+                    </span>
+                  )}
+                </div>
+              </Link>
+              <Link
+                href={`/companies/${job.company.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <p className="font-bold text-gray-900">{job.company.name}</p>
-              </div>
+              </Link>
             </div>
 
             {job.company.description && (
