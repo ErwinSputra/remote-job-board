@@ -1,20 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export function UpgradeButton() {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleUpgrade = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/subscription/upgrade", {
+      const res = await fetch("/api/stripe/checkout", {
         method: "POST",
       });
-      if (res.ok) {
-        router.refresh();
+
+      if (!res.ok) {
+        const data = await res.json();
+        console.error(data.error);
+        return;
+      }
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
       }
     } finally {
       setLoading(false);
@@ -27,7 +33,7 @@ export function UpgradeButton() {
       disabled={loading}
       className="w-full bg-[#FFE97D] hover:bg-[#FDD835] text-[#1A1A2E] font-bold py-2.5 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
     >
-      {loading ? "Upgrading..." : "Upgrade Now"}
+      {loading ? "Redirecting..." : "Upgrade Now"}
     </button>
   );
 }
