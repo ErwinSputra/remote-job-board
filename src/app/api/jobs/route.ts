@@ -53,37 +53,48 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const slug = title
+  // Replace the current slug line in api/jobs/route.ts
+  const baseSlug = title
     .toLowerCase()
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9\-]/g, "");
 
+  const slug = `${baseSlug}-${Date.now()}`;
+
   const isFeatured =
     subscription?.plan === "PREMIUM_POSTER" ? (rawIsFeatured ?? false) : false;
 
-  const job = await prisma.job.create({
-    data: {
-      title,
-      description,
-      slug,
-      requirements,
-      benefits,
-      type,
-      category,
-      tags,
-      experienceLevel,
-      region,
-      salaryMin,
-      salaryMax,
-      currency,
-      salaryPublic,
-      companyId,
-      isFeatured,
-      featuredUntil: isFeatured
-        ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-        : null,
-    },
-  });
+  try {
+    const job = await prisma.job.create({
+      data: {
+        title,
+        description,
+        slug,
+        requirements,
+        benefits,
+        type,
+        category,
+        tags,
+        experienceLevel,
+        region,
+        salaryMin,
+        salaryMax,
+        currency,
+        salaryPublic,
+        companyId,
+        isFeatured,
+        featuredUntil: isFeatured
+          ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          : null,
+      },
+    });
 
-  return NextResponse.json(job, { status: 201 });
+    return NextResponse.json(job, { status: 201 });
+  } catch (error) {
+    console.error("Failed to create job:", error);
+    return NextResponse.json(
+      { error: "Failed to create job. Please try again." },
+      { status: 500 },
+    );
+  }
 }

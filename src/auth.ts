@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
   providers: [Google],
   callbacks: {
     async signIn({ user }) {
@@ -29,15 +29,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
 
-    // 👇 Attach db user data to the JWT token
-    async jwt({ token, user }) {
-      if (user?.email) {
+    // auth.ts — update the jwt callback
+    async jwt({ token }) {
+      if (token.email) {
         const dbUser = await prisma.user.findUnique({
-          where: { email: user.email },
+          where: { email: token.email as string },
           select: { id: true, role: true },
         });
-        token.id = dbUser?.id;
-        token.role = dbUser?.role;
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+        }
       }
       return token;
     },
@@ -46,7 +48,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = token.role as string;
+        session.user.role = token.role as string | null;
       }
       return session;
     },

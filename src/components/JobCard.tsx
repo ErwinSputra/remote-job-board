@@ -7,7 +7,7 @@ type JobWithCompany = Job & {
   company: Company;
 };
 
-export function JobCard({
+export default function JobCard({
   title,
   slug,
   type,

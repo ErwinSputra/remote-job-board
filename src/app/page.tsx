@@ -1,4 +1,4 @@
-import { JobCard } from "@/components/JobCard";
+import JobCard from "@/components/JobCard";
 import { prisma } from "@/lib/prisma";
 import { Briefcase } from "lucide-react";
 import { JobType } from "@prisma/client";
