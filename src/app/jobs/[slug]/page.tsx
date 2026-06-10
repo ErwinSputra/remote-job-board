@@ -73,7 +73,7 @@ export default async function JobPage({ params }: Props) {
   const isBookmarkedFlag = !!isBookmarked;
 
   return (
-    <main className="bg-[#F7F6F3] min-h-screen">
+    <main className="bg-[#F4F4F5] min-h-screen">
       <div className="max-w-6xl mx-auto px-6 py-10 flex gap-8 items-start">
         {/* ── Left Column ── */}
         <div className="flex-1 space-y-4">
@@ -104,24 +104,24 @@ export default async function JobPage({ params }: Props) {
                 </h1>
                 <Link
                   href={`/companies/${job.company.slug}`}
-                  className="text-sm text-blue-600 font-medium hover:underline"
+                  className="text-sm text-[#1A1A2E] font-medium hover:underline"
                 >
                   {job.company.name}
                 </Link>
 
                 <div className="flex flex-wrap gap-2 mt-3">
-                  <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-[#1A1A2E] text-white">
+                  <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-[#1A1A2E] text-[#FFE97D]">
                     {typeLabel[job.type] ?? job.type}
                   </span>
-                  <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border border-gray-200 text-gray-600">
+                  <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border border-gray-200 bg-gray-50 text-gray-600">
                     {job.category}
                   </span>
-                  <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border border-gray-200 text-gray-600">
+                  <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border border-gray-200 bg-gray-50 text-gray-600">
                     {experienceLevelLabel[job.experienceLevel] ??
                       job.experienceLevel}
                   </span>
                   {job.region && (
-                    <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border border-gray-200 text-gray-600">
+                    <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border border-gray-200 bg-gray-50 text-gray-600">
                       🌍 {job.region}
                     </span>
                   )}
@@ -145,41 +145,37 @@ export default async function JobPage({ params }: Props) {
 
           {/* 2. Content Section */}
           <section className="bg-white rounded-2xl shadow-sm p-6 space-y-6">
-            {/* Description */}
             <div>
               <h2 className="text-base font-bold text-gray-900 mb-3">
                 Deskripsi Pekerjaan
               </h2>
-              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+              <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
                 {job.description}
               </p>
             </div>
 
-            {/* Requirements */}
             {job.requirements && (
               <div>
                 <h2 className="text-base font-bold text-gray-900 mb-3">
                   Kualifikasi
                 </h2>
-                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
                   {job.requirements}
                 </p>
               </div>
             )}
 
-            {/* Benefits */}
             {job.benefits && (
               <div>
                 <h2 className="text-base font-bold text-gray-900 mb-3">
                   Benefit
                 </h2>
-                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
                   {job.benefits}
                 </p>
               </div>
             )}
 
-            {/* Tags */}
             {job.tags.length > 0 && (
               <div>
                 <h2 className="text-base font-bold text-gray-900 mb-3">Tags</h2>
@@ -229,17 +225,19 @@ export default async function JobPage({ params }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <p className="font-bold text-gray-900">{job.company.name}</p>
+                <p className="font-bold text-gray-900 hover:text-[#1A1A2E] transition-colors">
+                  {job.company.name}
+                </p>
               </Link>
             </div>
 
             {job.company.description && (
-              <p className="text-sm text-gray-700 leading-relaxed mb-4">
+              <p className="text-sm text-gray-600 leading-relaxed mb-4">
                 {job.company.description}
               </p>
             )}
 
-            <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+            <div className="flex flex-wrap gap-4 text-sm text-gray-400">
               {job.company.industry && (
                 <div className="flex items-center gap-1.5">
                   <Building2 size={14} />
@@ -261,12 +259,11 @@ export default async function JobPage({ params }: Props) {
               {job.company.website && (
                 <div className="flex items-center gap-1.5">
                   <Globe size={14} />
-
                   <a
                     href={job.company.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
+                    className="text-[#1A1A2E] font-medium hover:underline"
                   >
                     Website
                   </a>
@@ -310,7 +307,7 @@ export default async function JobPage({ params }: Props) {
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-gray-800 group-hover:text-blue-600 transition-colors line-clamp-1">
+                      <p className="text-sm font-semibold text-gray-800 group-hover:text-[#1A1A2E] transition-colors line-clamp-1">
                         {j.title}
                       </p>
                       <p className="text-xs text-gray-400">{j.company.name}</p>

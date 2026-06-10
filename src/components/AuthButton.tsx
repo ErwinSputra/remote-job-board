@@ -23,13 +23,12 @@ export default function AuthButton({ user }: Props) {
             className="rounded-full"
           />
         )}
-        {/* Signed in */}
-        <span className="text-sm hidden md:block text-gray-500 dark:text-white/70">
+        <span className="text-sm hidden md:block text-gray-500">
           {user.name}
         </span>
         <button
           onClick={() => signOut()}
-          className="cursor-pointer text-sm px-3 py-1.5 rounded-lg transition-colors text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10"
+          className="cursor-pointer text-sm px-3 py-1.5 rounded-lg transition-colors text-gray-500 hover:text-gray-900 hover:bg-gray-100"
         >
           Sign Out
         </button>

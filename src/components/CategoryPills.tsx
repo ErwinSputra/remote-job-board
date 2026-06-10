@@ -26,7 +26,11 @@ export function CategoryPills({ categories }: Props) {
       <button
         onClick={() => handleClick("")}
         className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-colors
-          ${active === "" ? "bg-[#1A1A2E] text-white" : "border border-gray-200 text-gray-600 hover:border-gray-400 bg-white"}`}
+          ${
+            active === ""
+              ? "bg-[#1A1A2E] text-white shadow-md shadow-gray-400/40"
+              : "border border-gray-200 text-gray-600 hover:border-gray-400 bg-white shadow-sm hover:shadow-md shadow-gray-300/50"
+          }`}
       >
         Semua
       </button>
@@ -35,7 +39,11 @@ export function CategoryPills({ categories }: Props) {
           key={cat}
           onClick={() => handleClick(cat)}
           className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-colors
-            ${active === cat ? "bg-[#1A1A2E] text-white" : "border border-gray-200 text-gray-600 hover:border-gray-400 bg-white"}`}
+            ${
+              active === cat
+                ? "bg-[#1A1A2E] text-white shadow-md shadow-gray-400/40"
+                : "border border-gray-200 text-gray-600 hover:border-gray-400 bg-white shadow-sm hover:shadow-md shadow-gray-300/50"
+            }`}
         >
           {cat}
         </button>

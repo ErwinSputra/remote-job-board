@@ -57,8 +57,12 @@ export default function JobCard({
   return (
     <Link href={`/jobs/${slug}`} className="block">
       <div
-        className={`relative group bg-white rounded-2xl border transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 overflow-hidden
-      ${isFeatured ? "border-amber-300 shadow-amber-100 shadow-md" : "border-gray-200 hover:border-gray-300"}`}
+        className={`relative group bg-white rounded-2xl border transition-all duration-200 hover:-translate-y-0.5 overflow-hidden
+  ${
+    isFeatured
+      ? "border-amber-300 shadow-md hover:shadow-xl shadow-amber-200"
+      : "border-gray-200 shadow-md hover:shadow-xl hover:border-gray-300"
+  }`}
       >
         {isFeatured && (
           <div className="absolute top-0 right-0 bg-amber-400 text-[#1A1A2E] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-bl-xl">
@@ -70,7 +74,7 @@ export default function JobCard({
           {/* Company row */}
           <div className="flex items-center gap-3 mb-4">
             <div className="w-11 h-11 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0">
-              {company.logoUrl ? ( // ✅ fixed: was company.logo
+              {company.logoUrl ? (
                 <Image
                   src={company.logoUrl}
                   alt={company.name}
@@ -97,7 +101,7 @@ export default function JobCard({
           </div>
 
           {/* Job title */}
-          <h3 className="text-base font-bold text-gray-900 leading-snug mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+          <h3 className="text-base font-bold text-gray-900 leading-snug mb-3 group-hover:text-[#1A1A2E] transition-colors line-clamp-2">
             {title}
           </h3>
 

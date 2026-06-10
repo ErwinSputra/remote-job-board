@@ -38,7 +38,7 @@ export default async function Home({
   const categories = [...new Set(jobs.map((j) => j.category))];
 
   return (
-    <main className="min-h-screen bg-[#F7F6F3]">
+    <main className="min-h-screen bg-[#F4F4F5]">
       {/* ── Hero ── */}
       <section className="bg-[#1A1A2E] text-white px-6 py-10 relative overflow-hidden">
         <div
@@ -71,53 +71,55 @@ export default async function Home({
       </section>
 
       {/* ── Job listings ── */}
-      <section className="max-w-6xl mx-auto px-6 py-12">
-        {/* Featured section */}
-        {featuredCount > 0 && (
-          <div className="mb-10">
+      <section className="px-6 py-12 bg-white">
+        <div className="max-w-6xl mx-auto">
+          {/* Featured section */}
+          {featuredCount > 0 && (
+            <div className="mb-10">
+              <div className="flex items-center gap-2 mb-5">
+                <span className="text-xs font-bold uppercase tracking-widest text-amber-500">
+                  ⭐ Featured
+                </span>
+                <div className="flex-1 h-px bg-amber-200" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {jobs
+                  .filter((j) => j.isFeatured)
+                  .map((job) => (
+                    <JobCard key={job.id} {...job} />
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {/* All jobs section */}
+          <div>
             <div className="flex items-center gap-2 mb-5">
-              <span className="text-xs font-bold uppercase tracking-widest text-amber-500">
-                ⭐ Featured
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                Semua Lowongan
               </span>
-              <div className="flex-1 h-px bg-amber-200" />
+              <div className="flex-1 h-px bg-gray-200" />
+              <span className="text-xs text-gray-400">
+                {jobs.filter((j) => !j.isFeatured).length} jobs
+              </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {jobs
-                .filter((j) => j.isFeatured)
+                .filter((j) => !j.isFeatured)
                 .map((job) => (
                   <JobCard key={job.id} {...job} />
                 ))}
             </div>
           </div>
-        )}
 
-        {/* All jobs section */}
-        <div>
-          <div className="flex items-center gap-2 mb-5">
-            <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
-              Semua Lowongan
-            </span>
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-xs text-gray-400">
-              {jobs.filter((j) => !j.isFeatured).length} jobs
-            </span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {jobs
-              .filter((j) => !j.isFeatured)
-              .map((job) => (
-                <JobCard key={job.id} {...job} />
-              ))}
-          </div>
+          {jobs.length === 0 && (
+            <div className="text-center py-24 text-gray-400">
+              <Briefcase size={40} className="mx-auto mb-4 opacity-30" />
+              <p className="text-lg font-medium">Belum ada lowongan tersedia</p>
+              <p className="text-sm mt-1">Coba lagi nanti.</p>
+            </div>
+          )}
         </div>
-
-        {jobs.length === 0 && (
-          <div className="text-center py-24 text-gray-400">
-            <Briefcase size={40} className="mx-auto mb-4 opacity-30" />
-            <p className="text-lg font-medium">Belum ada lowongan tersedia</p>
-            <p className="text-sm mt-1">Coba lagi nanti.</p>
-          </div>
-        )}
       </section>
     </main>
   );
