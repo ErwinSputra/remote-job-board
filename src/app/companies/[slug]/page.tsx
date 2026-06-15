@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { JobCard } from "@/components/JobCard";
+import JobCard from "@/components/JobCard";
 import { JobStatus } from "@prisma/client";
 
 type Props = {
@@ -13,8 +13,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const company = await prisma.company.findUnique({ where: { slug } });
 
+  if (!company) {
+    return { title: "Company Not Found" };
+  }
+
+  const description = company.description
+    ? `${company.description.slice(0, 150)}...`
+    : `${company.name} is hiring remote workers. Browse their open positions on RemoteJobs.`;
+
   return {
-    title: company ? `${company.name} • Remote Job Board` : `Company • ${slug}`,
+    title: company.name,
+    description,
+    openGraph: {
+      title: `${company.name} — Remote Jobs`,
+      description,
+      url: `https://yourdomain.com/companies/${slug}`,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${company.name} — Remote Jobs`,
+      description,
+    },
   };
 }
 
@@ -90,7 +110,7 @@ export default async function CompanyPage({ params }: Props) {
                 ) : null}
                 {company.location ? <div>{company.location}</div> : null}
                 {company.industry ? <div>{company.industry}</div> : null}
-                {company.size ? <div>{company.size} karyawan</div> : null}
+                {company.size ? <div>{company.size} employees</div> : null}
               </div>
             </div>
           </div>
@@ -103,7 +123,7 @@ export default async function CompanyPage({ params }: Props) {
             <div className="flex items-center justify-between gap-4 mb-6">
               <div>
                 <h2 className="text-xl font-black text-gray-900">
-                  Lowongan dari {company.name}
+                  Open Roles at {company.name}
                 </h2>
                 <p className="text-sm text-gray-500 mt-1">
                   {jobs.length} active job{jobs.length === 1 ? "" : "s"} posted
@@ -114,7 +134,7 @@ export default async function CompanyPage({ params }: Props) {
 
             {jobs.length === 0 ? (
               <div className="rounded-3xl border border-dashed border-gray-200 bg-slate-50 p-8 text-center text-sm text-gray-500">
-                Belum ada lowongan aktif untuk perusahaan ini.
+                No active jobs available for this company.
               </div>
             ) : (
               <div className="grid gap-5">
@@ -129,7 +149,7 @@ export default async function CompanyPage({ params }: Props) {
         <aside className="space-y-6">
           <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-bold text-gray-900 mb-4">
-              Informasi Perusahaan
+              Company Info
             </h2>
             <div className="space-y-4 text-sm text-gray-700">
               {company.website && (
@@ -147,20 +167,20 @@ export default async function CompanyPage({ params }: Props) {
               )}
               {company.location && (
                 <div>
-                  <p className="font-semibold text-gray-900">Lokasi</p>
+                  <p className="font-semibold text-gray-900">Location</p>
                   <p>{company.location}</p>
                 </div>
               )}
               {company.industry && (
                 <div>
-                  <p className="font-semibold text-gray-900">Industri</p>
+                  <p className="font-semibold text-gray-900">Industry</p>
                   <p>{company.industry}</p>
                 </div>
               )}
               {company.size && (
                 <div>
-                  <p className="font-semibold text-gray-900">Ukuran</p>
-                  <p>{company.size} karyawan</p>
+                  <p className="font-semibold text-gray-900">Size</p>
+                  <p>{company.size} employees</p>
                 </div>
               )}
               {company.twitter && (
@@ -193,10 +213,10 @@ export default async function CompanyPage({ params }: Props) {
           </section>
 
           <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Tentang</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-4">About</h2>
             <p className="text-sm leading-relaxed text-gray-700 whitespace-pre-line">
               {company.description ||
-                "Perusahaan ini belum menambahkan deskripsi."}
+                "This company hasn't added a description yet."}
             </p>
           </section>
         </aside>

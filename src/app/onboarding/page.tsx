@@ -1,6 +1,13 @@
 import { auth } from "@/auth";
 import OnboardingCards from "@/components/OnboardingCards";
 import { BriefcaseBusiness } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Get Started",
+  description: "Tell us how you plan to use RemoteJobs.",
+  robots: { index: false, follow: false },
+};
 
 export default async function OnboardingPage() {
   const session = await auth();

@@ -14,9 +14,32 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const job = await prisma.job.findUnique({ where: { slug } });
+  const job = await prisma.job.findUnique({
+    where: { slug },
+    include: { company: true },
+  });
+
+  if (!job) {
+    return { title: "Job Not Found" };
+  }
+
+  const salary = formatSalary(job.salaryMin, job.salaryMax, job.currency);
+  const description = `${job.company.name} is hiring a ${job.title}${job.region ? ` (${job.region})` : ""}. ${salary ? `Salary: ${salary}.` : ""} ${job.description.slice(0, 120)}...`;
+
   return {
-    title: job ? `${job.title} • Remote Job Board` : `Job • ${slug}`,
+    title: job.title,
+    description,
+    openGraph: {
+      title: `${job.title} at ${job.company.name}`,
+      description,
+      url: `https://yourdomain.com/jobs/${slug}`,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${job.title} at ${job.company.name}`,
+      description,
+    },
   };
 }
 
@@ -137,7 +160,7 @@ export default async function JobPage({ params }: Props) {
             {/* Actions */}
             <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
               <button className="bg-[#FFE97D] hover:bg-[#FDD835] transition-colors text-[#1A1A2E] font-bold px-6 py-2.5 rounded-full text-sm cursor-pointer">
-                Lamar Sekarang
+                Apply Now
               </button>
               <BookmarkButton jobId={job.id} isBookmarked={isBookmarkedFlag} />
             </div>
@@ -147,7 +170,7 @@ export default async function JobPage({ params }: Props) {
           <section className="bg-white rounded-2xl shadow-sm p-6 space-y-6">
             <div>
               <h2 className="text-base font-bold text-gray-900 mb-3">
-                Deskripsi Pekerjaan
+                Job Description
               </h2>
               <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
                 {job.description}
@@ -157,7 +180,7 @@ export default async function JobPage({ params }: Props) {
             {job.requirements && (
               <div>
                 <h2 className="text-base font-bold text-gray-900 mb-3">
-                  Kualifikasi
+                  Requirements
                 </h2>
                 <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
                   {job.requirements}
@@ -168,7 +191,7 @@ export default async function JobPage({ params }: Props) {
             {job.benefits && (
               <div>
                 <h2 className="text-base font-bold text-gray-900 mb-3">
-                  Benefit
+                  Benefits
                 </h2>
                 <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
                   {job.benefits}
@@ -196,7 +219,7 @@ export default async function JobPage({ params }: Props) {
           {/* 3. Company Section */}
           <section className="bg-white rounded-2xl shadow-sm p-6">
             <h2 className="text-base font-bold text-gray-900 mb-4">
-              Tentang Perusahaan
+              About the Company
             </h2>
             <div className="flex items-center gap-3 mb-4">
               <Link
@@ -253,7 +276,7 @@ export default async function JobPage({ params }: Props) {
               {job.company.size && (
                 <div className="flex items-center gap-1.5">
                   <Users size={14} />
-                  <span>{job.company.size} karyawan</span>
+                  <span>{job.company.size} employees</span>
                 </div>
               )}
               {job.company.website && (
@@ -277,11 +300,11 @@ export default async function JobPage({ params }: Props) {
         <div className="w-72 shrink-0 space-y-4 sticky top-6">
           <section className="bg-white rounded-2xl shadow-sm p-5">
             <h2 className="text-sm font-bold text-gray-900 mb-4">
-              Lowongan Serupa
+              Similar Jobs
             </h2>
             {similarJobs.length === 0 ? (
               <p className="text-xs text-gray-400">
-                Tidak ada lowongan serupa saat ini.
+                No similar jobs at the moment.
               </p>
             ) : (
               <div className="space-y-3">

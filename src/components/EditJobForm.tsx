@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { JobType, ExperienceLevel, JobStatus } from "@prisma/client";
 import { toast } from "sonner";
 import { updateJob } from "@/app/dashboard/actions";
+import { CATEGORIES } from "@/lib/categories";
 
 type Job = {
   id: string;
@@ -145,12 +146,19 @@ export default function EditJobForm({ job }: { job: Job }) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className={labelClass}>Category *</label>
-          <input
+          <select
             name="category"
             value={form.category}
             onChange={handleChange}
             className={inputClass}
-          />
+          >
+            <option value="">Select a category</option>
+            {CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label className={labelClass}>Region</label>

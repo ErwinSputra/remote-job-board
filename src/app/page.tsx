@@ -6,6 +6,26 @@ import { ExperienceLevel } from "@prisma/client";
 import { SearchBar } from "@/components/SearchBar";
 import { CategoryPills } from "@/components/CategoryPills";
 import { Suspense } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Find the Best Remote Jobs",
+  description:
+    "Browse remote job opportunities across software engineering, design, marketing, and more. New jobs added daily.",
+  openGraph: {
+    title: "Find the Best Remote Jobs — RemoteJobs",
+    description:
+      "Browse remote job opportunities across software engineering, design, marketing, and more. New jobs added daily.",
+    url: "https://yourdomain.com",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Find the Best Remote Jobs — RemoteJobs",
+    description:
+      "Browse remote job opportunities across software engineering, design, marketing, and more. New jobs added daily.",
+  },
+};
 
 export default async function Home({
   searchParams,
@@ -51,11 +71,10 @@ export default async function Home({
         />
         <div className="relative z-10 max-w-3xl mx-auto text-center">
           <h1 className="text-2xl md:text-3xl font-black tracking-tight mb-2">
-            Temukan Pekerjaan{" "}
-            <span className="text-[#FFE97D]">Remote Terbaik</span> Untukmu
+            Find Your Best <span className="text-[#FFE97D]">Remote Job</span>
           </h1>
           <p className="text-white/50 text-sm mb-6">
-            {jobs.length} lowongan aktif · {featuredCount} featured
+            {jobs.length} active jobs · {featuredCount} featured
           </p>
           <Suspense fallback={null}>
             <SearchBar />
@@ -96,7 +115,7 @@ export default async function Home({
           <div>
             <div className="flex items-center gap-2 mb-5">
               <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
-                Semua Lowongan
+                All Jobs
               </span>
               <div className="flex-1 h-px bg-gray-200" />
               <span className="text-xs text-gray-400">
@@ -115,8 +134,8 @@ export default async function Home({
           {jobs.length === 0 && (
             <div className="text-center py-24 text-gray-400">
               <Briefcase size={40} className="mx-auto mb-4 opacity-30" />
-              <p className="text-lg font-medium">Belum ada lowongan tersedia</p>
-              <p className="text-sm mt-1">Coba lagi nanti.</p>
+              <p className="text-lg font-medium">No jobs available yet</p>
+              <p className="text-sm mt-1">Check back later.</p>
             </div>
           )}
         </div>

@@ -8,19 +8,21 @@ import { ChevronLeft } from "lucide-react";
 export default async function EditJobPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const session = await auth();
   if (!session) redirect("/");
 
+  const { id } = await params;
+
   const job = await prisma.job.findFirst({
-    where: { id: params.id, company: { userId: session.user.id } },
+    where: { id, company: { userId: session.user.id } },
   });
 
   if (!job) redirect("/dashboard");
 
   return (
-    <main className="bg-[#F7F6F3] min-h-screen">
+    <main className="bg-[#F4F4F5] min-h-screen">
       <div className="max-w-3xl mx-auto px-6 py-10">
         <Link
           href="/dashboard"

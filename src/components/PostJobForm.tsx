@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { JobType, ExperienceLevel } from "@prisma/client";
 import { toast } from "sonner";
+import { CATEGORIES } from "@/lib/categories";
 
 type Props = {
   companyId: string;
@@ -136,13 +137,19 @@ export function PostJobForm({ companyId }: Props) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className={labelClass}>Category *</label>
-          <input
+          <select
             name="category"
             value={form.category}
             onChange={handleChange}
-            placeholder="e.g. Software Engineering"
             className={inputClass}
-          />
+          >
+            <option value="">Select a category</option>
+            {CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label className={labelClass}>Region</label>

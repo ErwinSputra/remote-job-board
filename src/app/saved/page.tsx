@@ -4,8 +4,15 @@ import { prisma } from "@/lib/prisma";
 import JobCard from "@/components/JobCard";
 import Link from "next/link";
 import { Bookmark } from "lucide-react";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Saved Jobs",
+  description: "View and manage your saved remote job listings.",
+  robots: { index: false, follow: false },
+};
 
 export default async function SavedJobsPage() {
   const session = await auth();

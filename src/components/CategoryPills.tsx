@@ -32,7 +32,7 @@ export function CategoryPills({ categories }: Props) {
               : "border border-gray-200 text-gray-600 hover:border-gray-400 bg-white shadow-sm hover:shadow-md shadow-gray-300/50"
           }`}
       >
-        Semua
+        All
       </button>
       {categories.map((cat) => (
         <button
