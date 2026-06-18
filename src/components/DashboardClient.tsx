@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteJob, updateCompany } from "@/app/dashboard/actions";
+import Image from "next/image";
 
 type Job = {
   id: string;
@@ -28,6 +29,7 @@ type Job = {
 type Company = {
   id: string;
   name: string;
+  logoUrl: string | null;
   description: string | null;
   website: string | null;
   location: string | null;
@@ -273,12 +275,77 @@ function CompanyTab({ company }: { company: Company }) {
     linkedin: company.linkedin ?? "",
     twitter: company.twitter ?? "",
   });
+
+  // NEW: logoUrl tracked separately from the text-field `form` state, mirroring
+  // the pattern from CreateCompanyForm — it's set by the upload handler, not typed.
+  const [logoUrl, setLogoUrl] = useState(company.logoUrl ?? "");
+  const [logoPreview, setLogoPreview] = useState<string | null>(
+    company.logoUrl ?? null,
+  );
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
   const [isPending, startTransition] = useTransition();
+
+  // NEW: same validate -> preview -> upload flow as CreateCompanyForm.
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const ALLOWED_TYPES = [
+      "image/png",
+      "image/jpeg",
+      "image/webp",
+      "image/svg+xml",
+    ];
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setUploadError("Invalid file type. Allowed: PNG, JPEG, WEBP, SVG.");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      setUploadError("File too large. Max size is 2MB.");
+      e.target.value = "";
+      return;
+    }
+
+    setLogoPreview(URL.createObjectURL(file));
+    setUploadingLogo(true);
+    setUploadError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setUploadError(data.error ?? "Failed to upload logo.");
+        setLogoPreview(company.logoUrl ?? null); // revert preview on failure
+        return;
+      }
+
+      setLogoUrl(data.url);
+      setLogoPreview(data.url);
+    } catch {
+      setUploadError("Failed to upload logo. Please check your connection.");
+      setLogoPreview(company.logoUrl ?? null);
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
 
   const handleSubmit = () => {
     startTransition(async () => {
       try {
-        await updateCompany(company.id, form);
+        // CHANGED: logoUrl included alongside the rest of the form fields
+        await updateCompany(company.id, { ...form, logoUrl });
         toast.success("Company updated successfully");
       } catch {
         toast.error("Failed to update company");
@@ -307,6 +374,45 @@ function CompanyTab({ company }: { company: Company }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-6">
       <h2 className="text-lg font-bold text-gray-900 mb-6">Company Details</h2>
+
+      {/* NEW: logo upload block, same pattern as CreateCompanyForm */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Company Logo
+        </label>
+        <div className="flex items-center gap-3">
+          <div className="w-14 h-14 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0">
+            {logoPreview ? (
+              <Image
+                src={logoPreview}
+                alt="Logo preview"
+                width={56}
+                height={56}
+                unoptimized
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-xs text-gray-400">No logo</span>
+            )}
+          </div>
+          <div className="flex-1">
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/svg+xml"
+              onChange={handleLogoUpload}
+              disabled={uploadingLogo}
+              className="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-100 file:text-sm file:font-medium hover:file:bg-gray-200 cursor-pointer disabled:opacity-50"
+            />
+            {uploadingLogo && (
+              <p className="text-xs text-gray-400 mt-1">Uploading...</p>
+            )}
+            {uploadError && (
+              <p className="text-xs text-red-500 mt-1">{uploadError}</p>
+            )}
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {field("Company Name", "name", "Acme Inc.")}
         {field("Website", "website", "https://acme.com")}
@@ -333,7 +439,7 @@ function CompanyTab({ company }: { company: Company }) {
       <div className="mt-6 flex justify-end">
         <button
           onClick={handleSubmit}
-          disabled={isPending}
+          disabled={isPending || uploadingLogo}
           className="text-sm font-semibold px-6 py-2.5 rounded-lg text-white disabled:opacity-50 hover:opacity-90 transition-opacity"
           style={{ backgroundColor: "#1A1A2E" }}
         >

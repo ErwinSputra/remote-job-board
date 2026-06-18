@@ -7,11 +7,11 @@ const globalForPrisma = globalThis as unknown as {
   pool: Pool | undefined;
 };
 
-// Pooled connection untuk runtime queries
+// Pooled connection for runtime queries
 const pool =
   globalForPrisma.pool ??
   new Pool({
-    connectionString: process.env.DATABASE_URL, // pakai DATABASE_URL (pooled)
+    connectionString: process.env.DATABASE_URL, // DATABASE_URL (pooled)
   });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.pool = pool;

@@ -21,6 +21,7 @@ export async function updateCompany(
   companyId: string,
   data: {
     name: string;
+    logoUrl?: string | null; // NEW
     description?: string | null;
     website?: string | null;
     location?: string | null;

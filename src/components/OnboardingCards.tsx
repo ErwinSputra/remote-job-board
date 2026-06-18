@@ -2,19 +2,24 @@
 
 import { useState } from "react";
 import { Briefcase, Search } from "lucide-react";
-import { setUserRole } from "@/app/onboarding/actions";
+import { setUserRole } from "@/app/onboarding/actions"; // Adjust path if necessary
 
+// -----------------------------------------------------------------------------
+// ONBOARDING CARDS (CLIENT COMPONENT)
+// -----------------------------------------------------------------------------
+// Handles user interaction, loading states, and triggers the Server Action.
 export default function OnboardingCards() {
+  // Tracks which card is currently processing to show localized loading text
   const [loading, setLoading] = useState<"CANDIDATE" | "EMPLOYER" | null>(null);
 
   const handleSelect = async (role: "CANDIDATE" | "EMPLOYER") => {
-    setLoading(role);
-    await setUserRole(role);
+    setLoading(role); // Disable buttons and show loading state
+    await setUserRole(role); // Execute server-side database mutation
   };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
-      {/* Looking for work */}
+      {/* ---------------- CANDIDATE CARD ---------------- */}
       <button
         onClick={() => handleSelect("CANDIDATE")}
         disabled={loading !== null}
@@ -36,7 +41,7 @@ export default function OnboardingCards() {
         </div>
       </button>
 
-      {/* Hiring */}
+      {/* ---------------- EMPLOYER CARD ---------------- */}
       <button
         onClick={() => handleSelect("EMPLOYER")}
         disabled={loading !== null}

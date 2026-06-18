@@ -4,38 +4,51 @@ import { prisma } from "@/lib/prisma";
 
 export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
   providers: [Google],
+  // -----------------------------------------------------------------------------
+  // NEXTAUTH CALLBACKS (PURE JWT STRATEGY)
+  // -----------------------------------------------------------------------------
+  // Uses pure JSON Web Tokens to manage sessions. Google OAuth login data is
+  // manually intercepted and synchronized with our PostgreSQL database.
   callbacks: {
+    // 1. SIGN-IN CALLBACK
+    // Triggers upon a successful Google authentication. Handles new user registration.
     async signIn({ user }) {
-      if (!user.email) return false;
+      if (!user.email) return false; // Abort if Google fails to return an email address
 
+      // Check if the authenticating user already exists in our database
       const existing = await prisma.user.findUnique({
         where: { email: user.email },
       });
 
+      // CLEAN REGISTER UPON FIRST SIGN-IN
+      // If the user is new, save their basic profile credentials.
+      // Subscription initialization is intentionally excluded here to keep the database lean.
+      // Subscriptions will be cleanly handled during the role onboarding phase instead.
       if (!existing) {
-        const newUser = await prisma.user.create({
+        await prisma.user.create({
           data: {
             name: user.name,
             email: user.email,
             image: user.image,
+            // 'role' remains null. User is strictly forced to choose a role at /onboarding
           },
-        });
-
-        await prisma.subscription.create({
-          data: { userId: newUser.id },
         });
       }
 
-      return true;
+      return true; // Allow sign-in execution to finish successfully
     },
 
-    // auth.ts — update the jwt callback
+    // 2. JWT CALLBACK
+    // Invoked whenever a JSON Web Token is minted or updated.
+    // Fetches the latest user ID and role directly from the database and injects them into the token.
     async jwt({ token }) {
       if (token.email) {
         const dbUser = await prisma.user.findUnique({
           where: { email: token.email as string },
           select: { id: true, role: true },
         });
+
+        // Inject custom backend payloads securely into the encrypted JWT
         if (dbUser) {
           token.id = dbUser.id;
           token.role = dbUser.role;
@@ -44,7 +57,9 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
       return token;
     },
 
-    // 👇 Expose it on the session object
+    // 3. SESSION CALLBACK
+    // Invoked whenever the frontend application session is read (e.g., useSession() or auth()).
+    // Maps the customized internal JWT payloads into the client-facing session object.
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;

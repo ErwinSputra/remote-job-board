@@ -11,7 +11,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "*.googleusercontent.com", // 👈 add this
+        hostname: "*.googleusercontent.com",
       },
     ],
     dangerouslyAllowSVG: true,

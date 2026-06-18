@@ -2,16 +2,21 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export function CreateCompanyForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // NEW: separate loading/preview state for the logo upload itself,
+  // distinct from the overall form submission `loading` state.
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
   const [form, setForm] = useState({
     name: "",
     logoUrl: "",
-    coverUrl: "",
     website: "",
     description: "",
     size: "",
@@ -27,6 +32,71 @@ export function CreateCompanyForm() {
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // NEW: handles file selection, shows an instant local preview, then
+  // uploads the file to our API route and stores the returned public URL.
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // NEW: client-side validation BEFORE upload starts. This is a UX nicety,
+    // not a security boundary — the server route still re-validates everything,
+    // since a user could bypass this check entirely (devtools, direct API call).
+    // Keeping these limits in sync with the server route's constants is a manual
+    // step for now — fine for MVP scope, but worth a shared constants file later.
+    const ALLOWED_TYPES = [
+      "image/png",
+      "image/jpeg",
+      "image/webp",
+      "image/svg+xml",
+    ];
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setError("Invalid file type. Allowed: PNG, JPEG, WEBP, SVG.");
+      e.target.value = ""; // reset the input so the same bad file can be re-picked
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setError("File too large. Max size is 2MB.");
+      e.target.value = "";
+      return;
+    }
+
+    // Show an instant preview using the local file (before upload finishes).
+    const localPreviewUrl = URL.createObjectURL(file);
+    setLogoPreview(localPreviewUrl);
+
+    setUploadingLogo(true);
+    setError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error ?? "Failed to upload logo.");
+        setLogoPreview(null);
+        return;
+      }
+
+      setForm((prev) => ({ ...prev, logoUrl: data.url }));
+      setLogoPreview(data.url);
+    } catch {
+      setError("Failed to upload logo. Please check your connection.");
+      setLogoPreview(null);
+    } finally {
+      setUploadingLogo(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -51,7 +121,6 @@ export function CreateCompanyForm() {
         }),
       });
 
-      // Catch an error from the server response
       if (!res.ok) {
         const data = await res.json();
         setError(data.error ?? "Failed to create company.");
@@ -91,26 +160,42 @@ export function CreateCompanyForm() {
         />
       </div>
 
+      {/* CHANGED: Logo field is now a file picker with preview, not a text input.
+          Cover URL stays a text input for now, per your earlier decision. */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={labelClass}>Logo URL</label>
-          <input
-            name="logoUrl"
-            value={form.logoUrl}
-            onChange={handleChange}
-            placeholder="https://..."
-            className={inputClass}
-          />
-        </div>
-        <div>
-          <label className={labelClass}>Cover URL</label>
-          <input
-            name="coverUrl"
-            value={form.coverUrl}
-            onChange={handleChange}
-            placeholder="https://..."
-            className={inputClass}
-          />
+          <label className={labelClass}>Company Logo</label>
+          <div className="flex items-center gap-3">
+            {/* Preview thumbnail — shows local preview while uploading,
+                then the real uploaded image once done. */}
+            <div className="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0">
+              {logoPreview ? (
+                <Image
+                  src={logoPreview}
+                  alt="Logo preview"
+                  width={48}
+                  height={48}
+                  unoptimized // needed: blob: URLs can't go through Next's image optimizer
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-xs text-gray-400">No logo</span>
+              )}
+            </div>
+
+            <div className="flex-1">
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                onChange={handleLogoUpload}
+                disabled={uploadingLogo}
+                className="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-100 file:text-sm file:font-medium hover:file:bg-gray-200 cursor-pointer disabled:opacity-50"
+              />
+              {uploadingLogo && (
+                <p className="text-xs text-gray-400 mt-1">Uploading...</p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -189,7 +274,7 @@ export function CreateCompanyForm() {
 
       <button
         onClick={handleSubmit}
-        disabled={loading}
+        disabled={loading || uploadingLogo}
         className="w-full bg-[#FFE97D] hover:bg-[#FDD835] text-[#1A1A2E] font-bold py-3 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
       >
         {loading ? "Creating..." : "Create Company"}

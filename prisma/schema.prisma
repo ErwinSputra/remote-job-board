@@ -1,5 +1,9 @@
 // prisma/schema.prisma
 
+// -----------------------------------------------------------------------------
+// PRISMA CLIENT & DATABASE CONFIGURATION
+// -----------------------------------------------------------------------------
+// Configures the Prisma Client generator and connects to the PostgreSQL database.
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,8 +12,12 @@ datasource db {
   provider = "postgresql"
 }
 
-// --- ENUMS ---
+// -----------------------------------------------------------------------------
+// ENUMS (PREDEFINED DATA TYPES)
+// -----------------------------------------------------------------------------
+// Enforces strict data types to maintain database integrity across the application.
 
+// Defines user access levels for role-based routing (Candidate, Employer, or Admin).
 enum Role {
   CANDIDATE
   EMPLOYER
@@ -32,6 +40,7 @@ enum ExperienceLevel {
   EXECUTIVE
 }
 
+// Maps to Stripe subscription plans to manage job posting capabilities/limits.
 enum SubscriptionPlan {
   FREE
   PREMIUM_POSTER
@@ -43,6 +52,7 @@ enum SubscriptionStatus {
   PAST_DUE
 }
 
+// Controls the visibility of job postings on the platform.
 enum JobStatus {
   DRAFT
   ACTIVE
@@ -50,8 +60,14 @@ enum JobStatus {
   CLOSED
 }
 
-// --- MODELS ---
+// -----------------------------------------------------------------------------
+// DATABASE MODELS
+// -----------------------------------------------------------------------------
 
+// CORE USER MODEL
+// Extended NextAuth User model. Handles authentication and serves as the central
+// hub tying a user to their specific role, companies (Employers), subscriptions,
+// and saved jobs (Candidates).
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -60,6 +76,7 @@ model User {
   image         String?
   role          Role?      
 
+  // Relations
   companies     Company[]
   subscription  Subscription?
   savedJobs     SavedJob[]    
@@ -68,12 +85,15 @@ model User {
   updatedAt     DateTime  @updatedAt
 }
 
+// COMPANY MODEL
+// Represents an Employer's organization. A user (Employer) can manage multiple
+// companies. Tied to jobs via a one-to-many relationship.
 model Company {
   id          String   @id @default(cuid())
   name        String
   slug        String   @unique
   logoUrl     String?
-  coverUrl    String?  // Banner/cover image for company profile page
+  coverUrl    String?  // Banner/cover image for the company profile page
   website     String?
   description String?  @db.Text
   size        String?  // e.g. "1-10", "11-50", "51-200", "200+"
@@ -82,6 +102,7 @@ model Company {
   twitter     String?  // Social links
   linkedin    String?
 
+  // Relation to Employer (User). Cascade delete ensures companies are cleanly removed if the user is deleted.
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -91,6 +112,9 @@ model Company {
   updatedAt   DateTime @updatedAt
 }
 
+// JOB POSTING MODEL
+// Contains all details for a specific job. Includes essential database indexing 
+// for faster homepage querying, filtering, and automated expiration sweeps.
 model Job {
   id              String          @id @default(cuid())
   title           String
@@ -105,40 +129,53 @@ model Job {
   experienceLevel ExperienceLevel @default(MID)  // Seniority filter
   region          String?
 
+  // Compensation details
   salaryMin       Int?
   salaryMax       Int?
   currency        String          @default("USD")
   salaryPublic    Boolean         @default(true)  // Option to hide salary
 
+  // Premium & visibility features
   isFeatured      Boolean         @default(false)
   featuredUntil   DateTime?
   expiresAt       DateTime?       // Auto-expire job listings
 
+  // Relations
   companyId       String
   company         Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  savedBy         SavedJob[]      // Reverse relation for bookmarks
+  savedBy         SavedJob[]      // Reverse relation for candidate bookmarks
 
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
+  // Optimized Database Indexes for high-performance querying
   @@index([category, type])
-  @@index([status, isFeatured])   // For homepage featured query
-  @@index([expiresAt])            // For cleanup/expiry jobs
+  @@index([status, isFeatured])   // Crucial for homepage 'Featured' section queries
+  @@index([expiresAt])            // Optimizes background cron jobs or cleanup tasks
 }
 
-// Bookmark/saved jobs feature for candidates
+// SAVED JOBS (BOOKMARKS) MODEL
+// Acts as a junction table between User (Candidate) and Job. Allows candidates
+// to bookmark jobs for later viewing.
 model SavedJob {
   id        String   @id @default(cuid())
   userId    String
   jobId     String
+  
+  // Cascade delete ensures bookmarks are removed if the Job or User no longer exists.
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
   createdAt DateTime @default(now())
 
-  @@unique([userId, jobId])  // Prevent duplicate saves
+  // Prevents a candidate from saving the exact same job multiple times.
+  @@unique([userId, jobId])  
 }
 
+// SUBSCRIPTION MODEL
+// Handles Stripe billing information for Employers. Synced via Stripe Webhooks
+// to grant 'PREMIUM_POSTER' privileges seamlessly.
 model Subscription {
   id                   String             @id @default(cuid())
   userId               String             @unique
@@ -147,6 +184,7 @@ model Subscription {
   plan                 SubscriptionPlan   @default(FREE)
   status               SubscriptionStatus @default(ACTIVE)
 
+  // Stripe mapping IDs (Populated & automatically updated via Webhooks)
   stripeCustomerId     String?            @unique
   stripeSubscriptionId String?            @unique
 

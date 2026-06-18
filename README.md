@@ -73,6 +73,9 @@ npm install
 Create a `.env` file in the root with the following:
 
 ```env
+# General / App URL
+NEXT_PUBLIC_URL="http://localhost:3000"
+
 # Supabase / PostgreSQL
 DATABASE_URL="postgresql://..."
 DIRECT_URL="postgresql://..."
@@ -217,7 +220,7 @@ src/
 This project is designed to deploy on **Vercel**. When deploying:
 
 1. Add all environment variables from `.env` to your Vercel project settings
-2. Set `AUTH_URL` to your production domain
+2. Set both `NEXT_PUBLIC_URL` and `AUTH_URL` to your production domain (e.g., `https://yourdomain.com`)
 3. Update `metadataBase` in `src/app/layout.tsx` to your production domain
 4. Set up your Stripe webhook endpoint in the Stripe dashboard pointing to `https://yourdomain.com/api/stripe/webhook`
 5. Run `npx prisma generate` as part of your build command if needed
