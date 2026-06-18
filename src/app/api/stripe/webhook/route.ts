@@ -26,19 +26,28 @@ export async function POST(request: NextRequest) {
       const session = event.data.object as Stripe.Checkout.Session;
       const userId = session.metadata?.userId;
       const subscriptionId = session.subscription as string;
+      const customerId = session.customer as string;
 
       if (!userId) break;
 
-      // Get subscription details from Stripe
-      //   const stripeSubscription =
-      //     await stripe.subscriptions.retrieve(subscriptionId);
-
-      await prisma.subscription.update({
+      // KUNCI PERBAIKAN: Gunakan upsert agar anti-crash!
+      // Jika data sudah ada, ia akan di-update. Jika belum ada, akan otomatis dibuat.
+      await prisma.subscription.upsert({
         where: { userId },
-        data: {
+        update: {
           plan: "PREMIUM_POSTER",
           status: "ACTIVE",
           stripeSubscriptionId: subscriptionId,
+          stripeCustomerId: customerId,
+          currentPeriodStart: new Date(),
+          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        },
+        create: {
+          userId,
+          plan: "PREMIUM_POSTER",
+          status: "ACTIVE",
+          stripeSubscriptionId: subscriptionId,
+          stripeCustomerId: customerId,
           currentPeriodStart: new Date(),
           currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         },
@@ -51,6 +60,7 @@ export async function POST(request: NextRequest) {
       const subscription = event.data.object as Stripe.Subscription;
       const stripeSubscriptionId = subscription.id;
 
+      // updateMany aman digunakan karena tidak akan crash meski datanya tidak ditemukan
       await prisma.subscription.updateMany({
         where: { stripeSubscriptionId },
         data: {

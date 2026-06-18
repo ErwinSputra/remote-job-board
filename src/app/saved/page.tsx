@@ -17,8 +17,15 @@ export const metadata: Metadata = {
 export default async function SavedJobsPage() {
   const session = await auth();
 
+  // 1. Cek apakah user sudah login
   if (!session?.user) {
     redirect("/api/auth/signin");
+  }
+
+  // 2. KUNCI FRONTEND: Cek apakah role user adalah CANDIDATE
+  if (session.user.role !== "CANDIDATE") {
+    // Jika bukan kandidat (misal Employer/Admin), langsung lempar ke beranda
+    redirect("/");
   }
 
   const savedJobs = await prisma.savedJob.findMany({
@@ -45,9 +52,8 @@ export default async function SavedJobsPage() {
         </p>
       </div>
 
-      {/* Empty state stays the same */}
+      {/* Empty state */}
       {savedJobs.length === 0 ? (
-        // ... keep existing empty state, just fix text colors:
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <Bookmark size={48} className="text-gray-200 mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">

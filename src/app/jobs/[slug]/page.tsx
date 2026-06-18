@@ -84,16 +84,22 @@ export default async function JobPage({ params }: Props) {
 
   const session = await auth();
 
-  const isBookmarked = await prisma.savedJob.findUnique({
-    where: {
-      userId_jobId: {
-        userId: session?.user.id || "",
-        jobId: job.id,
-      },
-    },
-  });
+  // 1. Cek apakah user yang sedang login adalah CANDIDATE
+  const isCandidate = session?.user?.role === "CANDIDATE";
 
-  const isBookmarkedFlag = !!isBookmarked;
+  // 2. Hanya lakukan query ke database JIKA dia adalah CANDIDATE
+  let isBookmarkedFlag = false;
+  if (isCandidate) {
+    const isBookmarked = await prisma.savedJob.findUnique({
+      where: {
+        userId_jobId: {
+          userId: session.user.id,
+          jobId: job.id,
+        },
+      },
+    });
+    isBookmarkedFlag = !!isBookmarked;
+  }
 
   return (
     <main className="bg-[#F4F4F5] min-h-screen">
@@ -162,7 +168,14 @@ export default async function JobPage({ params }: Props) {
               <button className="bg-[#FFE97D] hover:bg-[#FDD835] transition-colors text-[#1A1A2E] font-bold px-6 py-2.5 rounded-full text-sm cursor-pointer">
                 Apply Now
               </button>
-              <BookmarkButton jobId={job.id} isBookmarked={isBookmarkedFlag} />
+
+              {/* 3. KUNCI FRONTEND: Tombol Bookmark hanya dirender untuk CANDIDATE */}
+              {isCandidate && (
+                <BookmarkButton
+                  jobId={job.id}
+                  isBookmarked={isBookmarkedFlag}
+                />
+              )}
             </div>
           </section>
 

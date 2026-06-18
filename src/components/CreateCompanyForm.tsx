@@ -30,8 +30,14 @@ export function CreateCompanyForm() {
   };
 
   const handleSubmit = async () => {
+    if (!form.name.trim()) {
+      setError("Company name is required");
+      return;
+    }
+
     setLoading(true);
     setError("");
+
     try {
       const res = await fetch("/api/companies", {
         method: "POST",
@@ -45,20 +51,18 @@ export function CreateCompanyForm() {
         }),
       });
 
-      if (!form.name) {
-        setError("Company name is required");
-        return;
-      }
-
+      // Catch an error from the server response
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error ?? "Something went wrong");
+        setError(data.error ?? "Failed to create company.");
         return;
       }
 
       router.push("/post-job");
     } catch {
-      setError("Something went wrong");
+      setError(
+        "Failed to connect to the server. Please check your connection.",
+      );
     } finally {
       setLoading(false);
     }
