@@ -13,27 +13,18 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
     // 1. SIGN-IN CALLBACK
     // Triggers upon a successful Google authentication. Handles new user registration.
     async signIn({ user }) {
-      if (!user.email) return false; // Abort if Google fails to return an email address
+      if (!user.email) return false;
 
-      // Check if the authenticating user already exists in our database
-      const existing = await prisma.user.findUnique({
+      await prisma.user.upsert({
         where: { email: user.email },
+        update: {}, // User already exists — don't overwrite anything
+        create: {
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          // 'role' remains null. User is strictly forced to choose a role at /onboarding
+        },
       });
-
-      // CLEAN REGISTER UPON FIRST SIGN-IN
-      // If the user is new, save their basic profile credentials.
-      // Subscription initialization is intentionally excluded here to keep the database lean.
-      // Subscriptions will be cleanly handled during the role onboarding phase instead.
-      if (!existing) {
-        await prisma.user.create({
-          data: {
-            name: user.name,
-            email: user.email,
-            image: user.image,
-            // 'role' remains null. User is strictly forced to choose a role at /onboarding
-          },
-        });
-      }
 
       return true; // Allow sign-in execution to finish successfully
     },

@@ -29,9 +29,12 @@ export async function POST(request: NextRequest) {
       const customerId = session.customer as string;
 
       if (!userId) break;
+      if (!subscriptionId) break;
 
-      // KUNCI PERBAIKAN: Gunakan upsert agar anti-crash!
-      // Jika data sudah ada, ia akan di-update. Jika belum ada, akan otomatis dibuat.
+      const stripeSubscription: Stripe.Subscription =
+        await stripe.subscriptions.retrieve(subscriptionId);
+      const item = stripeSubscription.items.data[0];
+
       await prisma.subscription.upsert({
         where: { userId },
         update: {
@@ -39,8 +42,8 @@ export async function POST(request: NextRequest) {
           status: "ACTIVE",
           stripeSubscriptionId: subscriptionId,
           stripeCustomerId: customerId,
-          currentPeriodStart: new Date(),
-          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          currentPeriodStart: new Date(item.current_period_start * 1000),
+          currentPeriodEnd: new Date(item.current_period_end * 1000),
         },
         create: {
           userId,
@@ -48,8 +51,8 @@ export async function POST(request: NextRequest) {
           status: "ACTIVE",
           stripeSubscriptionId: subscriptionId,
           stripeCustomerId: customerId,
-          currentPeriodStart: new Date(),
-          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          currentPeriodStart: new Date(item.current_period_start * 1000),
+          currentPeriodEnd: new Date(item.current_period_end * 1000),
         },
       });
 
@@ -60,12 +63,13 @@ export async function POST(request: NextRequest) {
       const subscription = event.data.object as Stripe.Subscription;
       const stripeSubscriptionId = subscription.id;
 
-      // updateMany aman digunakan karena tidak akan crash meski datanya tidak ditemukan
       await prisma.subscription.updateMany({
         where: { stripeSubscriptionId },
         data: {
           plan: "FREE",
           status: "CANCELED",
+          stripeSubscriptionId: null,
+          stripeCustomerId: null,
         },
       });
 
