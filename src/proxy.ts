@@ -14,7 +14,7 @@ export default async function proxy(req: NextRequest) {
   const token = await getToken({
     req,
     secret: process.env.AUTH_SECRET,
-    salt: process.env.AUTH_URL ?? "authjs.session-token",
+    salt: "__Secure-authjs.session-token",
   });
   const { pathname } = req.nextUrl;
 
