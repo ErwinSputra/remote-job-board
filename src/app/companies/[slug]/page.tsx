@@ -56,17 +56,7 @@ export default async function CompanyPage({ params }: Props) {
   return (
     <main className="bg-[#F7F6F3] min-h-screen">
       <section className="relative overflow-hidden">
-        <div className="h-32 bg-slate-900">
-          {company.coverUrl ? (
-            <Image
-              src={company.coverUrl}
-              alt={`${company.name} cover`}
-              fill
-              className="object-cover opacity-90"
-            />
-          ) : null}
-          {/* <div className="absolute inset-0 bg-black/30" /> */}
-        </div>
+        <div className="h-32 bg-slate-900" />
 
         <div className="max-w-6xl mx-auto px-6 -mt-20 pb-10">
           <div className="relative rounded-3xl border border-gray-200 bg-white/95 shadow-xl backdrop-blur-xl p-8">

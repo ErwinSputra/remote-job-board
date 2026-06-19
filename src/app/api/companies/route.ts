@@ -19,7 +19,6 @@ export async function POST(request: NextRequest) {
     const {
       name,
       logoUrl,
-      coverUrl,
       website,
       description,
       size,
@@ -47,7 +46,6 @@ export async function POST(request: NextRequest) {
         name,
         slug,
         logoUrl: logoUrl || null,
-        coverUrl: coverUrl || null,
         website: website || null,
         description: description || null,
         size: size || null,
