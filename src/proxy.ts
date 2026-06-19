@@ -11,7 +11,11 @@ import { getToken } from "next-auth/jwt";
 export default async function proxy(req: NextRequest) {
   // 1. EXTRACT JWT TOKEN
   // Securely retrieve the decoded JSON Web Token from the user's cookies.
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const token = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET,
+    salt: process.env.AUTH_URL ?? "authjs.session-token",
+  });
   const { pathname } = req.nextUrl;
 
   // 2. ONBOARDING ENFORCEMENT
