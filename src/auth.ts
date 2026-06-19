@@ -4,11 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
   providers: [Google],
-  // -----------------------------------------------------------------------------
-  // NEXTAUTH CALLBACKS (PURE JWT STRATEGY)
-  // -----------------------------------------------------------------------------
-  // Uses pure JSON Web Tokens to manage sessions. Google OAuth login data is
-  // manually intercepted and synchronized with our PostgreSQL database.
+  session: { strategy: "jwt" }, // ← add this line
   callbacks: {
     // 1. SIGN-IN CALLBACK
     // Triggers upon a successful Google authentication. Handles new user registration.
