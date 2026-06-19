@@ -9,6 +9,11 @@ export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // 2. ONBOARDING ENFORCEMENT
+  // Block unauthenticated users from accessing /onboarding
+  if (!token && pathname === "/onboarding") {
+    return NextResponse.redirect(new URL("/api/auth/signin", req.url));
+  }
+
   if (token && !token.role && pathname !== "/onboarding") {
     return NextResponse.redirect(new URL("/onboarding", req.url));
   }
