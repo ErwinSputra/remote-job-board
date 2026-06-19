@@ -19,11 +19,14 @@ const ALLOWED_TYPES = [
 
 export async function POST(req: NextRequest) {
   // 1. AUTH CHECK
-  // Only logged-in users can upload files. Adjust role check if you want to
-  // restrict this further to EMPLOYER/ADMIN only.
+  // Only EMPLOYER or ADMIN can upload company logos.
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (session.user.role !== "EMPLOYER" && session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   // 2. PARSE THE INCOMING FILE
