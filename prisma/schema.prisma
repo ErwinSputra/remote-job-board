@@ -93,7 +93,7 @@ model Company {
   name        String
   slug        String   @unique
   logoUrl     String?
-  coverUrl    String?  // Banner/cover image for the company profile page
+  //coverUrl    String?  // Banner/cover image for the company profile page
   website     String?
   description String?  @db.Text
   size        String?  // e.g. "1-10", "11-50", "51-200", "200+"

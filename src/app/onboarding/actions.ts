@@ -10,18 +10,21 @@ import { redirect } from "next/navigation";
 // Securely executes database mutations on the server side when a user selects their role.
 export async function setUserRole(role: "CANDIDATE" | "EMPLOYER") {
   // 1. AUTHORIZATION CHECK
-  // Ensure the request is coming from an authenticated user.
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
-  // 2. ASSIGN ROLE
-  // Update the user's permanent role in the core User table.
+  // 2. RUNTIME ROLE VALIDATION
+  if (role !== "CANDIDATE" && role !== "EMPLOYER") {
+    throw new Error("Invalid role");
+  }
+
+  // 3. ASSIGN ROLE
   await prisma.user.update({
     where: { id: session.user.id },
     data: { role },
   });
 
-  // 3. INITIALIZE EMPLOYER SUBSCRIPTION
+  // 4. INITIALIZE EMPLOYER SUBSCRIPTION
   // Only create a billing/subscription record if the user intends to post jobs.
   // Using 'upsert' acts as a failsafe to prevent duplicate key crashes.
   if (role === "EMPLOYER") {
@@ -36,12 +39,12 @@ export async function setUserRole(role: "CANDIDATE" | "EMPLOYER") {
     });
   }
 
-  // 4. REFRESH SESSION TOKEN
+  // 5. REFRESH SESSION TOKEN
   // Force the NextAuth JWT cookie to immediately reflect the new role
   // so the proxy/middleware instantly recognizes the updated permissions.
   await unstable_update({ user: { role } });
 
-  // 5. SMART ROUTING
+  // 6. SMART ROUTING
   // Redirect employers to setup their company profile, and candidates to the job board.
   redirect(role === "EMPLOYER" ? "/companies/create" : "/");
 }

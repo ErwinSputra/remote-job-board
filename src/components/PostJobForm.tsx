@@ -45,6 +45,20 @@ export function PostJobForm({ companyId }: Props) {
   };
 
   const handleSubmit = async () => {
+    if (!form.title || !form.description || !form.category) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    if (
+      form.salaryMin &&
+      form.salaryMax &&
+      parseInt(form.salaryMin) > parseInt(form.salaryMax)
+    ) {
+      toast.error("Minimum salary cannot be greater than maximum");
+      return;
+    }
+
     setLoading(true);
     setError("");
     try {

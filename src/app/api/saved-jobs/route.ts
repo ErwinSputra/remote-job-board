@@ -9,6 +9,10 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (session.user.role !== "CANDIDATE" && session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const savedJobs = await prisma.savedJob.findMany({
     where: { userId: session.user.id },
     include: {
@@ -28,11 +32,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (session.user.role !== "CANDIDATE" && session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const { jobId } = await request.json();
   if (!jobId) {
     return NextResponse.json({ error: "Job ID is required" }, { status: 400 });
   }
 
+  const job = await prisma.job.findUnique({ where: { id: jobId } });
+  if (!job) {
+    return NextResponse.json({ error: "Job not found" }, { status: 404 });
+  }
   const existing = await prisma.savedJob.findUnique({
     where: { userId_jobId: { userId: session.user.id, jobId } },
   });

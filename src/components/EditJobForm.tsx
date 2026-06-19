@@ -60,6 +60,15 @@ export default function EditJobForm({ job }: { job: Job }) {
   };
 
   const handleSubmit = async () => {
+    if (
+      form.salaryMin &&
+      form.salaryMax &&
+      parseInt(form.salaryMin) > parseInt(form.salaryMax)
+    ) {
+      toast.error("Minimum salary cannot be greater than maximum");
+      return;
+    }
+
     setLoading(true);
     try {
       await updateJob(job.id, {
