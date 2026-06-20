@@ -21,7 +21,7 @@ export async function updateCompany(
   companyId: string,
   data: {
     name: string;
-    logoUrl?: string | null; // NEW
+    logoUrl?: string | null;
     description?: string | null;
     website?: string | null;
     location?: string | null;
@@ -84,4 +84,36 @@ export async function updateJob(
 
   revalidatePath("/dashboard");
   revalidatePath(`/jobs/${job.slug}`);
+}
+
+export async function toggleFeatured(jobId: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  // Check subscription
+  const subscription = await prisma.subscription.findUnique({
+    where: { userId: session.user.id },
+  });
+  if (subscription?.plan !== "PREMIUM_POSTER") {
+    throw new Error("Premium plan required");
+  }
+
+  // Verify job ownership
+  const job = await prisma.job.findFirst({
+    where: { id: jobId, company: { userId: session.user.id } },
+  });
+  if (!job) throw new Error("Not found or unauthorized");
+
+  await prisma.job.update({
+    where: { id: jobId },
+    data: {
+      isFeatured: !job.isFeatured,
+      featuredUntil: !job.isFeatured
+        ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        : null,
+    },
+  });
+
+  revalidatePath("/dashboard");
+  revalidatePath("/");
 }

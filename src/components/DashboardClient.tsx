@@ -13,7 +13,11 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
-import { deleteJob, updateCompany } from "@/app/dashboard/actions";
+import {
+  deleteJob,
+  updateCompany,
+  toggleFeatured,
+} from "@/app/dashboard/actions";
 import Image from "next/image";
 
 type Job = {
@@ -163,14 +167,14 @@ function JobsTab({ jobs, isPremium }: { jobs: Job[]; isPremium: boolean }) {
       )}
       <div className="divide-y divide-gray-50">
         {jobs.map((job) => (
-          <JobRow key={job.id} job={job} />
+          <JobRow key={job.id} job={job} isPremium={isPremium} />
         ))}
       </div>
     </div>
   );
 }
 
-function JobRow({ job }: { job: Job }) {
+function JobRow({ job, isPremium }: { job: Job; isPremium: boolean }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -231,6 +235,38 @@ function JobRow({ job }: { job: Job }) {
         >
           <Pencil size={14} />
         </Link>
+
+        <button
+          onClick={() => {
+            startTransition(async () => {
+              try {
+                await toggleFeatured(job.id);
+                toast.success(
+                  job.isFeatured ? "Job unfeatured" : "Job featured!",
+                );
+              } catch {
+                toast.error("Failed to update featured status");
+              }
+            });
+          }}
+          disabled={isPending || !isPremium}
+          className={`p-2 rounded-lg transition-colors ${
+            job.isFeatured
+              ? "text-yellow-500 hover:bg-yellow-50"
+              : isPremium
+                ? "text-gray-400 hover:text-yellow-500 hover:bg-yellow-50"
+                : "text-gray-200 cursor-not-allowed"
+          }`}
+          title={
+            isPremium
+              ? job.isFeatured
+                ? "Unfeature job"
+                : "Feature job"
+              : "Upgrade to feature jobs"
+          }
+        >
+          <Crown size={14} />
+        </button>
 
         {confirmDelete ? (
           <div className="flex items-center gap-1">
