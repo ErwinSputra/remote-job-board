@@ -23,7 +23,7 @@ export default async function OnboardingPage() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center justify-center px-4"
+      className="min-h-[calc(100vh-64px)] flex flex-col items-center justify-center px-4"
       style={{ backgroundColor: "#1A1A2E" }}
     >
       {/* Brand Logo */}
