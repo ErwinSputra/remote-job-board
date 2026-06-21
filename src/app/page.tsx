@@ -101,7 +101,7 @@ export default async function Home({
                 </span>
                 <div className="flex-1 h-px bg-amber-200" />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
                 {jobs
                   .filter((j) => j.isFeatured)
                   .map((job) => (
@@ -122,7 +122,7 @@ export default async function Home({
                 {jobs.filter((j) => !j.isFeatured).length} jobs
               </span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
               {jobs
                 .filter((j) => !j.isFeatured)
                 .map((job) => (

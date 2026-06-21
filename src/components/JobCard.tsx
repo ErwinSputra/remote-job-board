@@ -55,9 +55,9 @@ export default function JobCard({
   };
 
   return (
-    <Link href={`/jobs/${slug}`} className="block">
+    <Link href={`/jobs/${slug}`} className="block h-full">
       <div
-        className={`relative group bg-white rounded-2xl border transition-all duration-200 hover:-translate-y-0.5 overflow-hidden
+        className={`relative group bg-white rounded-2xl border transition-all duration-200 hover:-translate-y-0.5 overflow-hidden h-full flex flex-col
   ${
     isFeatured
       ? "border-amber-300 shadow-md hover:shadow-xl shadow-amber-200"
@@ -70,7 +70,7 @@ export default function JobCard({
           </div>
         )}
 
-        <div className="p-5">
+        <div className="p-5 flex flex-col flex-1">
           {/* Company row */}
           <div className="flex items-center gap-3 mb-4">
             <div className="w-11 h-11 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0">
@@ -106,7 +106,7 @@ export default function JobCard({
           </h3>
 
           {/* Tags row */}
-          <div className="flex flex-wrap gap-1.5 mb-4">
+          <div className="flex flex-wrap gap-1.5 mb-4 flex-1 content-start">
             <span
               className={`text-xs font-medium px-2.5 py-0.5 rounded-full border ${typeColors[type] ?? "bg-gray-50 text-gray-600 border-gray-200"}`}
             >
