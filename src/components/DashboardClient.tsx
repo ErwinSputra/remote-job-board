@@ -53,7 +53,7 @@ export default function DashboardClient({ company, jobs, isPremium }: Props) {
   const [activeTab, setActiveTab] = useState<"jobs" | "company">("jobs");
 
   return (
-    <main className="min-h-[calc(100vh-64px)] bg-[#F7F6F3]">
+    <main className="flex-1 bg-[#F7F6F3]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
