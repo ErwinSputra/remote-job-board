@@ -163,35 +163,35 @@ export function CreateCompanyForm() {
           Cover URL stays a text input for now, per your earlier decision. */}
       <div>
         <label className={labelClass}>Company Logo</label>
-        <div className="flex items-center gap-3">
-          {/* Preview thumbnail — shows local preview while uploading,
-                then the real uploaded image once done. */}
-          <div className="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0">
+        <div className="flex flex-col items-center justify-center gap-3 border-2 border-dashed border-gray-200 rounded-xl p-6 bg-gray-50">
+          <div className="w-16 h-16 rounded-xl bg-white border border-gray-200 flex items-center justify-center overflow-hidden shrink-0">
             {logoPreview ? (
               <Image
                 src={logoPreview}
                 alt="Logo preview"
-                width={48}
-                height={48}
-                unoptimized // needed: blob: URLs can't go through Next's image optimizer
+                width={64}
+                height={64}
+                unoptimized
                 className="w-full h-full object-cover"
               />
             ) : (
               <span className="text-xs text-gray-400">No logo</span>
             )}
           </div>
-
-          <div className="flex-1">
+          <div className="text-center">
             <input
               type="file"
               accept="image/png,image/jpeg,image/webp,image/svg+xml"
               onChange={handleLogoUpload}
               disabled={uploadingLogo}
-              className="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-100 file:text-sm file:font-medium hover:file:bg-gray-200 cursor-pointer disabled:opacity-50"
+              className="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-[#1A1A2E] file:text-white file:text-sm file:font-medium hover:file:opacity-90 cursor-pointer disabled:opacity-50"
             />
             {uploadingLogo && (
               <p className="text-xs text-gray-400 mt-1">Uploading...</p>
             )}
+            <p className="text-xs text-gray-400 mt-1">
+              PNG, JPEG, WEBP or SVG · Max 2MB
+            </p>
           </div>
         </div>
       </div>
